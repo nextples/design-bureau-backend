@@ -1,15 +1,13 @@
 package ru.nsu.nextples.ms_employee.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "employee_categories")
 public class EmployeeCategory {
@@ -22,6 +20,5 @@ public class EmployeeCategory {
     private String name;
 
     @OneToMany(mappedBy = "category")
-    private Set<ru.nsu.nextples.ms_employee.model.Employee> employees = new LinkedHashSet<>();
-
+    private Set<Employee> employees = new LinkedHashSet<>();
 }

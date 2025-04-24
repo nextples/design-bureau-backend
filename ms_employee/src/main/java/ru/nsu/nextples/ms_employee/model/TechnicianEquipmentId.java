@@ -2,18 +2,21 @@ package ru.nsu.nextples.ms_employee.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.hibernate.Hibernate;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-@Getter
-@Setter
+/**
+ * Составной внешний ключ таблицы technician_equipment
+ */
+@Data
 @Embeddable
-public class TechnicianEquipmentId implements java.io.Serializable {
+public class TechnicianEquipmentId implements Serializable {
     private static final long serialVersionUID = 7316726498822513618L;
+
     @Column(name = "employee_id", nullable = false)
     private UUID employeeId;
 

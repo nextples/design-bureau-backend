@@ -1,15 +1,13 @@
 package ru.nsu.nextples.ms_employee.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "employees")
 public class Employee {
@@ -35,19 +33,19 @@ public class Employee {
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @OneToMany(mappedBy = "head")
-    private Set<Department> departments = new LinkedHashSet<>();
+    @OneToOne(mappedBy = "head")
+    private Department departmentAsHead;
 
     @OneToOne
     private Designer designer;
 
     @ManyToMany
-    private Set<ru.nsu.nextples.ms_employee.model.EngineerSpecialization> engineerSpecializations = new LinkedHashSet<>();
+    private Set<EngineerSpecialization> engineerSpecializations = new LinkedHashSet<>();
 
     @ManyToMany
-    private Set<ru.nsu.nextples.ms_employee.model.Laboratory> laboratories = new LinkedHashSet<>();
+    private Set<Laboratory> laboratories = new LinkedHashSet<>();
 
     @OneToOne
-    private ru.nsu.nextples.ms_employee.model.Technician technician;
+    private Technician technician;
 
 }

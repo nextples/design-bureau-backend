@@ -2,7 +2,7 @@ package ru.nsu.nextples.ms_employee.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.nsu.nextples.ms_employee.dto.EmployeeRequest;
+import ru.nsu.nextples.ms_employee.dto.employee.EmployeeCreateRequestDTO;
 import ru.nsu.nextples.ms_employee.exception.EmployeeNotFoundException;
 import ru.nsu.nextples.ms_employee.model.Employee;
 import ru.nsu.nextples.ms_employee.repository.DepartmentRepository;
@@ -48,7 +48,7 @@ public class EmployeeService {
         return employeeRepository.findByFirstNameAndLastName(firstName, lastName);
     }
 
-    public Employee create(EmployeeRequest request) {
-
+    public Employee create(EmployeeCreateRequestDTO request) {
+        return null;
     }
 }

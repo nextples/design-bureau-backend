@@ -1,13 +1,11 @@
 package ru.nsu.nextples.ms_employee.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "lab_assistants")
 public class LabAssistant {
@@ -23,6 +21,6 @@ public class LabAssistant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "laboratory_id")
-    private ru.nsu.nextples.ms_employee.model.Laboratory laboratory;
+    private Laboratory laboratory;
 
 }

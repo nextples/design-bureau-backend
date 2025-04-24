@@ -1,11 +1,9 @@
 package ru.nsu.nextples.ms_employee.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "technician_equipment")
 public class TechnicianEquipment {
@@ -15,6 +13,6 @@ public class TechnicianEquipment {
     @MapsId("employeeId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "employee_id", nullable = false)
-    private ru.nsu.nextples.ms_employee.model.Technician employee;
+    private Technician employee;
 
 }
