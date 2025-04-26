@@ -3,9 +3,7 @@ package ru.nsu.nextples.ms_employee.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Entity
@@ -19,7 +17,7 @@ public class Laboratory {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @ManyToMany(mappedBy = "laboratories")
-    private Set<Employee> employees = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "laboratory", cascade = CascadeType.ALL)
+    private List<LabAssistant> labAssistants = new ArrayList<>();
 
 }

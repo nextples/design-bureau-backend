@@ -2,25 +2,15 @@ package ru.nsu.nextples.ms_employee.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.util.UUID;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "lab_assistants")
-public class LabAssistant {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "employee_id", nullable = false)
-    private UUID id;
-
-    @MapsId
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employees;
+public class LabAssistant extends Employee {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "laboratory_id")
     private Laboratory laboratory;
-
 }

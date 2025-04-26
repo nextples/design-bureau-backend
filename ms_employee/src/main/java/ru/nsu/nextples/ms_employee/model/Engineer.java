@@ -2,25 +2,23 @@ package ru.nsu.nextples.ms_employee.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+@EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 @Data
 @Entity
 @Table(name = "engineers")
-public class Engineer {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "employee_id", nullable = false)
-    private UUID id;
+public class Engineer extends Employee {
 
-    @MapsId
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "employee_id", nullable = false)
-    private Employee employees;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "specialization_id")
-    private EngineerSpecialization specialization;
-
+    @ManyToMany
+    @JoinTable(
+            name = "engineer_specializations",
+            joinColumns = @JoinColumn(name = "employee_id"),
+            inverseJoinColumns = @JoinColumn(name = "specialization_id")
+    )
+    private Set<EngineerSpecialization> specializations = new HashSet<>();
 }

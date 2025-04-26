@@ -1,16 +1,16 @@
 package ru.nsu.nextples.ms_employee.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "employees")
-public class Employee {
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "employee_id", nullable = false)
@@ -23,8 +23,8 @@ public class Employee {
     private String lastName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private EmployeeCategory category;
+    @JoinColumn(name = "position_id")
+    private EmployeePosition position;
 
     @Column(name = "age")
     private Integer age;
@@ -34,18 +34,6 @@ public class Employee {
     private Department department;
 
     @OneToOne(mappedBy = "head")
-    private Department departmentAsHead;
-
-    @OneToOne
-    private Designer designer;
-
-    @ManyToMany
-    private Set<EngineerSpecialization> engineerSpecializations = new LinkedHashSet<>();
-
-    @ManyToMany
-    private Set<Laboratory> laboratories = new LinkedHashSet<>();
-
-    @OneToOne
-    private Technician technician;
-
+    @JsonIgnore
+    private Department managedDepartment;
 }
