@@ -30,7 +30,7 @@ public abstract class Employee {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_position_id", nullable = false)
-    private EmployeePosition position;
+    private EmployeePosition employeePosition;
 
     @Column(name = "age")
     private Integer age;

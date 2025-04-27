@@ -8,7 +8,7 @@ public class ValidPositionValidator implements ConstraintValidator<ValidPosition
 
     @Override
     public boolean isValid(Employee employee, ConstraintValidatorContext context) {
-        return employee.getPosition().getEmployeeType()
+        return employee.getEmployeePosition().getEmployeeType()
                 == employee.getEmployeeType();
     }
 }

@@ -2,6 +2,7 @@ package ru.nsu.nextples.ms_employee.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,7 +22,6 @@ import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentUpdateDTO;
 import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
 import ru.nsu.nextples.ms_employee.dto.error.ValidationErrorDTO;
-import ru.nsu.nextples.ms_employee.dto_old.department.DepartmentResponseDTO;
 import ru.nsu.nextples.ms_employee.service.DepartmentService;
 
 import java.util.UUID;
@@ -42,7 +42,7 @@ public class DepartmentController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = DepartmentResponseDTO.class)
+                            schema = @Schema(implementation = DepartmentDTO.class)
                     )
             ),
             @ApiResponse(
@@ -69,7 +69,7 @@ public class DepartmentController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = DepartmentResponseDTO.class)
+                            schema = @Schema(implementation = DepartmentDTO.class)
                     )
             ),
             @ApiResponse(
@@ -93,9 +93,7 @@ public class DepartmentController {
             @PathVariable UUID id,
             @Valid @RequestBody DepartmentUpdateDTO departmentUpdateDTO
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(
-                departmentService.updateDepartment(id, departmentUpdateDTO)
-        );
+        return ResponseEntity.ok(departmentService.updateDepartment(id, departmentUpdateDTO));
     }
 
 
@@ -107,7 +105,7 @@ public class DepartmentController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = DepartmentResponseDTO.class)
+                            array = @ArraySchema(schema = @Schema(implementation = DepartmentDTO.class))
                     )
             )
     })
@@ -118,9 +116,7 @@ public class DepartmentController {
             @RequestParam(required = false) UUID headId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(
-                departmentService.getAllDepartments(name, headId, pageable)
-        );
+        return ResponseEntity.ok(departmentService.getAllDepartments(name, headId, pageable));
     }
 
     @GetMapping("/{id}")
@@ -131,7 +127,7 @@ public class DepartmentController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = DepartmentResponseDTO.class)
+                            schema = @Schema(implementation = DepartmentDTO.class)
                     )
             ),
             @ApiResponse(
@@ -144,9 +140,7 @@ public class DepartmentController {
             )
     })
     public ResponseEntity<DepartmentDTO> getDepartmentDetails(@PathVariable UUID id) {
-        return ResponseEntity.status(HttpStatus.OK).body(
-                departmentService.getDepartmentDetails(id)
-        );
+        return ResponseEntity.ok(departmentService.getDepartmentDetails(id));
     }
 
 
@@ -168,6 +162,6 @@ public class DepartmentController {
     })
     public ResponseEntity<Void> deleteDepartment(@PathVariable UUID id) {
         departmentService.deleteDepartment(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.noContent().build();
     }
 }

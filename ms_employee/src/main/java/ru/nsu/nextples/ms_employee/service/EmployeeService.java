@@ -2,16 +2,21 @@ package ru.nsu.nextples.ms_employee.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.nsu.nextples.ms_employee.dto.employee.EmployeeCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
-import ru.nsu.nextples.ms_employee.dto_old.employee.EmployeeCreateRequestDTO;
-import ru.nsu.nextples.ms_employee.exception.EmployeeObjectNotFoundException;
+import ru.nsu.nextples.ms_employee.dto.employee.EmployeeUpdateDTO;
+import ru.nsu.nextples.ms_employee.exception.EmployeeNotFoundException;
+import ru.nsu.nextples.ms_employee.exception.EmployeePositionNotFoundException;
 import ru.nsu.nextples.ms_employee.model.*;
-import ru.nsu.nextples.ms_employee.repository.DepartmentRepository;
-import ru.nsu.nextples.ms_employee.repository.EmployeeCategoryRepository;
+import ru.nsu.nextples.ms_employee.repository.EmployeePositionRepository;
 import ru.nsu.nextples.ms_employee.repository.EmployeeRepository;
+import ru.nsu.nextples.ms_employee.repository.specifications.EmployeeSpecifications;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -19,36 +24,73 @@ import java.util.stream.Collectors;
 @Service
 public class EmployeeService {
 
+    private final EmployeeFactory employeeFactory;
     private final EmployeeRepository employeeRepository;
-    private final EmployeeCategoryRepository employeeCategoryRepository;
-    private final DepartmentRepository departmentRepository;
+    private final EmployeePositionRepository employeePositionRepository;
 
-    public List<Employee> findAll() {
-        return employeeRepository.findAll();
+    @Transactional
+    public EmployeeDTO createEmployee(EmployeeCreateDTO request) {
+        Employee employee = employeeFactory.createEmployee(request);
+        Employee savedEmployee = employeeRepository.save(employee);
+        return mapToDTO(savedEmployee, true);
     }
 
-    public Employee findById(UUID id) {
-        return employeeRepository.findById(id).orElseThrow(() -> new EmployeeObjectNotFoundException(id));
+    @Transactional
+    public EmployeeDTO updateEmployee(UUID id, EmployeeUpdateDTO request) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+
+        employeeFactory.updateEmployee(employee, request);
+        Employee savedEmployee = employeeRepository.save(employee);
+        return mapToDTO(savedEmployee, true);
     }
 
-    public List<Employee> findByDepartmentId(UUID departmentId) {
-        return employeeRepository.findByDepartmentId(departmentId);
+    public Page<EmployeeDTO> getAllEmployees(
+            String firstName,
+            String lastName,
+            Integer ageFrom,
+            Integer ageTo,
+            EmployeeType employeeType,
+            UUID positionId,
+            Pageable pageable
+    ) {
+        Specification<Employee> spec = Specification.where(null);
+
+        if (firstName != null) {
+            spec.and(EmployeeSpecifications.firstNameContains(firstName));
+        }
+        if (lastName != null) {
+            spec.and(EmployeeSpecifications.lastNameContains(lastName));
+        }
+        if (ageFrom != null) {
+            spec.and(EmployeeSpecifications.hasAgeFrom(ageFrom));
+        }
+        if (ageTo != null) {
+            spec.and(EmployeeSpecifications.hasAgeTo(ageTo));
+        }
+        if (employeeType != null) {
+            spec.and(EmployeeSpecifications.hasEmployeeType(employeeType));
+        }
+        if (positionId != null) {
+            spec.and(EmployeeSpecifications.hasPosition(positionId));
+        }
+
+        return employeeRepository.findAll(spec, pageable)
+                .map(employee -> mapToDTO(employee, false));
     }
 
-//    public List<Employee> findByEmployeeCategoryId(UUID employeeCategoryId) {
-//        return employeeRepository.findByCategoryId(employeeCategoryId);
-//    }
+    public EmployeeDTO getEmployeeDetails(UUID id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
 
-    public List<Employee> findByAge(int age) {
-        return employeeRepository.findByAge(age);
+        return mapToDTO(employee, true);
     }
 
-    public List<Employee> findByFirstNameAndLastName(String firstName, String lastName) {
-        return employeeRepository.findByFirstNameAndLastName(firstName, lastName);
-    }
-
-    public Employee create(EmployeeCreateRequestDTO request) {
-        return null;
+    @Transactional
+    public void deleteEmployee(UUID id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
+        employeeRepository.delete(employee);
     }
 
     public static EmployeeDTO mapToDTO(Employee employee, boolean detailed) {
@@ -56,7 +98,8 @@ public class EmployeeService {
         dto.setId(employee.getId());
         dto.setFirstName(employee.getFirstName());
         dto.setLastName(employee.getLastName());
-        dto.setPosition(EmployeePositionService.mapToDTO(employee.getPosition()));
+        dto.setEmployeeType(employee.getEmployeeType());
+        dto.setPosition(EmployeePositionService.mapToDTO(employee.getEmployeePosition()));
 
         if (detailed) {
             dto.setAge(employee.getAge());

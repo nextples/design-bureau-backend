@@ -5,15 +5,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentUpdateDTO;
 import ru.nsu.nextples.ms_employee.exception.DepartmentHasEmployeesDeleteException;
-import ru.nsu.nextples.ms_employee.exception.DepartmentObjectNotFoundException;
-import ru.nsu.nextples.ms_employee.exception.EmployeeObjectNotFoundException;
+import ru.nsu.nextples.ms_employee.exception.DepartmentNotFoundException;
+import ru.nsu.nextples.ms_employee.exception.EmployeeNotFoundException;
 import ru.nsu.nextples.ms_employee.exception.InvalidNameException;
 import ru.nsu.nextples.ms_employee.model.Department;
 import ru.nsu.nextples.ms_employee.model.Employee;
@@ -43,7 +41,7 @@ public class DepartmentService {
 
     public DepartmentDTO updateDepartment(UUID id, DepartmentUpdateDTO request) {
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new DepartmentObjectNotFoundException(id));
+                .orElseThrow(() -> new DepartmentNotFoundException(id));
 
         validateHead(request.getHeadId());
         setDepartmentHead(department, request.getHeadId());
@@ -68,7 +66,7 @@ public class DepartmentService {
 
     public DepartmentDTO getDepartmentDetails(UUID id) {
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() -> new DepartmentObjectNotFoundException(id));
+                .orElseThrow(() -> new DepartmentNotFoundException(id));
 
         return mapToDTO(department, true);
     }
@@ -96,7 +94,7 @@ public class DepartmentService {
 
     private void validateHead(UUID headId) {
         if (headId != null && !employeeRepository.existsById(headId)) {
-            throw new EmployeeObjectNotFoundException(headId);
+            throw new EmployeeNotFoundException(headId);
         }
     }
 
@@ -107,7 +105,7 @@ public class DepartmentService {
         }
 
         Employee head = employeeRepository.findById(headId)
-                .orElseThrow(() -> new EmployeeObjectNotFoundException(headId));
+                .orElseThrow(() -> new EmployeeNotFoundException(headId));
 
         department.setHead(head);
     }

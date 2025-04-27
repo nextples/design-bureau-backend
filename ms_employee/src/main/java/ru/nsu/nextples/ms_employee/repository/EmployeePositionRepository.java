@@ -5,6 +5,6 @@ import ru.nsu.nextples.ms_employee.model.EmployeePosition;
 
 import java.util.UUID;
 
-public interface EmployeeCategoryRepository extends JpaRepository<EmployeePosition, UUID> {
+public interface EmployeePositionRepository extends JpaRepository<EmployeePosition, UUID> {
 
 }

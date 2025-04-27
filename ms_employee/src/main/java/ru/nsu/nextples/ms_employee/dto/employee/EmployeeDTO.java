@@ -6,6 +6,7 @@ import ru.nsu.nextples.ms_employee.dto.EngineerSpecializationDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
 import ru.nsu.nextples.ms_employee.dto.EmployeePositionDTO;
 import ru.nsu.nextples.ms_employee.dto.LaboratoryDTO;
+import ru.nsu.nextples.ms_employee.model.EmployeeType;
 
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +30,8 @@ public class EmployeeDTO {
     @Schema(description = "Должность сотрудника", implementation = EmployeePositionDTO.class)
     private EmployeePositionDTO position;
 
+    @Schema(description = "Тип сотрудника", implementation = EmployeeType.class)
+    private EmployeeType employeeType;
 
     /**********************
      ***    DETAILED    ***
