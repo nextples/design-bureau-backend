@@ -10,6 +10,7 @@ public class EmployeePositionService {
     public static EmployeePositionDTO mapToDTO(EmployeePosition employeePosition) {
         EmployeePositionDTO dto = new EmployeePositionDTO();
         dto.setId(employeePosition.getId());
+        dto.setEmployeeType(employeePosition.getEmployeeType());
         dto.setName(employeePosition.getName());
         return dto;
     }

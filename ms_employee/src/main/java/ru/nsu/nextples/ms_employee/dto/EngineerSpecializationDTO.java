@@ -13,6 +13,6 @@ public class EngineerSpecializationDTO {
     @Schema(description = "ID специализации")
     private UUID id;
 
-    @Schema(description = "Название специализации")
+    @Schema(description = "Название специализации", example = "Инженер-механик")
     private String name;
 }

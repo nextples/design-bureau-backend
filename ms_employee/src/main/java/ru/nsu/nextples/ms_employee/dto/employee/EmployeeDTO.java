@@ -14,16 +14,16 @@ import java.util.UUID;
 @Schema(description = "Ответ с детальной информацией о сотруднике")
 public class EmployeeDTO {
 
-    /*******************
+    /******************
      ***    PURE    ***
-     *******************/
+     ******************/
     @Schema(description = "ID сотрудника")
     private UUID id;
 
-    @Schema(description = "Имя сотрудника")
+    @Schema(description = "Имя сотрудника", example = "Петр")
     private String firstName;
 
-    @Schema(description = "Фамилия сотрудника")
+    @Schema(description = "Фамилия сотрудника", example = "Петров")
     private String lastName;
 
     @Schema(description = "Должность сотрудника", implementation = EmployeePositionDTO.class)
@@ -33,7 +33,7 @@ public class EmployeeDTO {
     /**********************
      ***    DETAILED    ***
      **********************/
-    @Schema(description = "Возраст сотрудника")
+    @Schema(description = "Возраст сотрудника", example = "24")
     private Integer age;
 
     @Schema(description = "Название отдела сотрудника", implementation = DepartmentDTO.class)
@@ -42,10 +42,10 @@ public class EmployeeDTO {
     @Schema(description = "Название отдела, возглавляемого сотрудником", implementation = DepartmentDTO.class)
     private DepartmentDTO managedDepartment;
 
-    @Schema(description = "Список специализаций инженера (если применимо)")
+    @Schema(description = "Список специализаций инженера (если применимо)", implementation = EngineerSpecializationDTO.class)
     private Set<EngineerSpecializationDTO> specializations;
 
-    @Schema(description = "Количество патентов конструктора (если применимо)")
+    @Schema(description = "Количество патентов конструктора (если применимо)", example = "4")
     private Integer patentsCount;
 
     @Schema(description = "Лаборатория лаборанта (если применимо)", implementation = LaboratoryDTO.class)

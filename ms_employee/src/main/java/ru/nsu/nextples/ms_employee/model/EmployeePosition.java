@@ -3,22 +3,26 @@ package ru.nsu.nextples.ms_employee.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "employee_positions")
+@Table(
+        name = "employee_positions",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"employeeType", "name"}
+        )
+)
 public class EmployeePosition {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "position_id", nullable = false)
     private UUID id;
 
-    @Column(name = "name", nullable = false, length = 100)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EmployeeType employeeType;
 
-    @OneToMany(mappedBy = "position")
-    private Set<Employee> employees = new LinkedHashSet<>();
+    @Column(nullable = false, length = 100)
+    private String name;
 }

@@ -12,6 +12,6 @@ public class LaboratoryDTO {
     @Schema(description = "ID лаборатории")
     private UUID id;
 
-    @Schema(description = "Название лаборатории")
+    @Schema(description = "Название лаборатории", example = "Лаборатория аэродинамики")
     private String name;
 }

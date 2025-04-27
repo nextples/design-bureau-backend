@@ -11,23 +11,24 @@ import java.util.UUID;
 @Schema(description = "Ответ с подробной информацией об отделе")
 public class DepartmentDTO {
 
-    /*******************
+    /******************
      ***    PURE    ***
-     *******************/
+     ******************/
     @Schema(description = "ID отдела")
     private UUID id;
 
-    @Schema(description = "Название отдела")
+    @Schema(description = "Название отдела", example = "Отдел машиностроения")
     private String name;
 
-    @Schema(description = "Количество сотрудников")
+    @Schema(description = "Количество сотрудников", example = "34")
     private Integer totalEmployees;
 
-    @Schema(description = "Руководителя отдела")
+    @Schema(description = "Руководителя отдела", implementation = EmployeeDTO.class)
     private EmployeeDTO head;
 
+    /**********************
+     ***    DETAILED    ***
+     **********************/
     @Schema(description = "Список сотрудников отдела")
     private Set<EmployeeDTO> employees;
-
-
 }

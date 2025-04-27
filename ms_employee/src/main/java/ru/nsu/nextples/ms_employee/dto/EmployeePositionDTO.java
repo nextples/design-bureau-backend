@@ -2,6 +2,7 @@ package ru.nsu.nextples.ms_employee.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import ru.nsu.nextples.ms_employee.model.EmployeeType;
 
 import java.util.UUID;
 
@@ -12,6 +13,9 @@ public class EmployeePositionDTO {
     @Schema(description = "ID должности")
     private UUID id;
 
-    @Schema(description = "Название должности")
+    @Schema(description = "Тип сотрудника", implementation = EmployeeType.class)
+    private EmployeeType employeeType;
+
+    @Schema(description = "Название должности", example = "Конструктор")
     private String name;
 }

@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
 import ru.nsu.nextples.ms_employee.dto_old.employee.EmployeeCreateRequestDTO;
-import ru.nsu.nextples.ms_employee.exception.EmployeeNotFoundException;
+import ru.nsu.nextples.ms_employee.exception.EmployeeObjectNotFoundException;
 import ru.nsu.nextples.ms_employee.model.*;
 import ru.nsu.nextples.ms_employee.repository.DepartmentRepository;
 import ru.nsu.nextples.ms_employee.repository.EmployeeCategoryRepository;
@@ -28,7 +28,7 @@ public class EmployeeService {
     }
 
     public Employee findById(UUID id) {
-        return employeeRepository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+        return employeeRepository.findById(id).orElseThrow(() -> new EmployeeObjectNotFoundException(id));
     }
 
     public List<Employee> findByDepartmentId(UUID departmentId) {

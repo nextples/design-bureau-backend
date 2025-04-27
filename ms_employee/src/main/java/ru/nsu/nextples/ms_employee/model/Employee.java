@@ -3,6 +3,7 @@ package ru.nsu.nextples.ms_employee.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import ru.nsu.nextples.ms_employee.annotation.ValidPosition;
 
 import java.util.UUID;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "employees")
 @Inheritance(strategy = InheritanceType.JOINED)
+@ValidPosition
 public abstract class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -22,8 +24,12 @@ public abstract class Employee {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "employee_type", nullable = false)
+    private EmployeeType employeeType;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "position_id")
+    @JoinColumn(name = "employee_position_id", nullable = false)
     private EmployeePosition position;
 
     @Column(name = "age")
