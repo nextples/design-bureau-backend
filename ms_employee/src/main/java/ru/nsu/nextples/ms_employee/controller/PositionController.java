@@ -17,31 +17,34 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.nsu.nextples.ms_employee.dto.department.DepartmentCreateDTO;
-import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
-import ru.nsu.nextples.ms_employee.dto.department.DepartmentUpdateDTO;
+import ru.nsu.nextples.ms_employee.dto.PositionCreateDTO;
+import ru.nsu.nextples.ms_employee.dto.PositionDTO;
+import ru.nsu.nextples.ms_employee.dto.PositionUpdateDTO;
+import ru.nsu.nextples.ms_employee.dto.employee.EmployeeCreateDTO;
+import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
 import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
-import ru.nsu.nextples.ms_employee.service.DepartmentService;
+import ru.nsu.nextples.ms_employee.model.EmployeeType;
+import ru.nsu.nextples.ms_employee.service.PositionService;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/departments")
-@Tag(name = "Отделы", description = "API для управления отделами")
+@RequestMapping("/api/v1/positions")
+@Tag(name = "Должности", description = "Управление должностями сотрудников")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class DepartmentController {
+public class PositionController {
 
-    private final DepartmentService departmentService;
+    private final PositionService positionService;
 
     @PostMapping
-    @Operation(summary = "Создать отдел")
+    @Operation(summary = "Создать должность")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = DepartmentDTO.class)
+                            schema = @Schema(implementation = EmployeeDTO.class)
                     )
             ),
             @ApiResponse(
@@ -53,14 +56,13 @@ public class DepartmentController {
                     )
             )
     })
-    public ResponseEntity<DepartmentDTO> createDepartment(@Valid @RequestBody DepartmentCreateDTO departmentCreateDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                departmentService.createDepartment(departmentCreateDTO)
-        );
+    public ResponseEntity<PositionDTO> createEmployee(@Valid @RequestBody PositionCreateDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(positionService.createPosition(request));
     }
 
 
-    @Operation(summary = "Обновить отдел")
+    @Operation(summary = "Обновить должность")
     @PutMapping("/{id}")
     @ApiResponses(value = {
             @ApiResponse(
@@ -68,7 +70,7 @@ public class DepartmentController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = DepartmentDTO.class)
+                            schema = @Schema(implementation = EmployeeCreateDTO.class)
                     )
             ),
             @ApiResponse(
@@ -88,45 +90,51 @@ public class DepartmentController {
                     )
             )
     })
-    public ResponseEntity<DepartmentDTO> updateDepartment(
+    public ResponseEntity<PositionDTO> updateEmployee(
             @PathVariable UUID id,
-            @Valid @RequestBody DepartmentUpdateDTO departmentUpdateDTO
+            @Valid @RequestBody PositionUpdateDTO request
     ) {
-        return ResponseEntity.ok(departmentService.updateDepartment(id, departmentUpdateDTO));
+        return ResponseEntity.ok(positionService.updatePosition(id, request));
     }
 
 
     @GetMapping
-    @Operation(summary = "Получить список всех отделов")
+    @Operation(
+            summary = "Получить список должностей",
+            parameters = {
+                    @Parameter(name = "type", description = "Тип сотрудника"),
+                    @Parameter(name = "name", description = "Часть названия должности"),
+                    @Parameter(name = "page", description = "Номер страницы", example = "0"),
+                    @Parameter(name = "size", description = "Размер страницы", example = "20")
+            }
+    )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = DepartmentDTO.class))
+                            array = @ArraySchema(schema = @Schema(implementation = EmployeeDTO.class))
                     )
             )
     })
-    public ResponseEntity<Page<DepartmentDTO>> getAllDepartments(
-            @Parameter(description = "Фильтр по названию")
+    public ResponseEntity<Page<PositionDTO>> getAllPositions(
+            @RequestParam(required = false) EmployeeType type,
             @RequestParam(required = false) String name,
-            @Parameter(description = "Фильтр по руководителю")
-            @RequestParam(required = false) UUID headId,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(departmentService.getAllDepartments(name, headId, pageable));
+        return ResponseEntity.ok(positionService.getAllPositions(type, name, pageable));
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Получить детальную информацию об отделе")
+    @Operation(summary = "Получить информацию о должности")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = DepartmentDTO.class)
+                            schema = @Schema(implementation = EmployeeDTO.class)
                     )
             ),
             @ApiResponse(
@@ -138,13 +146,13 @@ public class DepartmentController {
                     )
             )
     })
-    public ResponseEntity<DepartmentDTO> getDepartmentDetails(@PathVariable UUID id) {
-        return ResponseEntity.ok(departmentService.getDepartmentDetails(id));
+    public ResponseEntity<PositionDTO> getEmployeeDetails(@PathVariable UUID id) {
+        return ResponseEntity.ok(positionService.getPosition(id));
     }
 
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить отдел")
+    @Operation(summary = "Удалить должность")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
@@ -159,8 +167,8 @@ public class DepartmentController {
                     )
             )
     })
-    public ResponseEntity<Void> deleteDepartment(@PathVariable UUID id) {
-        departmentService.deleteDepartment(id);
+    public ResponseEntity<Void> deleteEmployee(@PathVariable UUID id) {
+        positionService.deletePosition(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -5,12 +5,12 @@ import org.springframework.stereotype.Service;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeUpdateDTO;
 import ru.nsu.nextples.ms_employee.exception.DepartmentNotFoundException;
-import ru.nsu.nextples.ms_employee.exception.EmployeePositionNotFoundException;
+import ru.nsu.nextples.ms_employee.exception.PositionNotFoundException;
 import ru.nsu.nextples.ms_employee.exception.InvalidPositionException;
 import ru.nsu.nextples.ms_employee.exception.LaboratoryNotFoundException;
 import ru.nsu.nextples.ms_employee.model.*;
 import ru.nsu.nextples.ms_employee.repository.DepartmentRepository;
-import ru.nsu.nextples.ms_employee.repository.EmployeePositionRepository;
+import ru.nsu.nextples.ms_employee.repository.PositionRepository;
 import ru.nsu.nextples.ms_employee.repository.EngineerSpecializationRepository;
 import ru.nsu.nextples.ms_employee.repository.LaboratoryRepository;
 
@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmployeeFactory {
 
-    private final EmployeePositionRepository positionRepository;
+    private final PositionRepository positionRepository;
     private final EngineerSpecializationRepository specializationRepository;
     private final LaboratoryRepository laboratoryRepository;
     private final DepartmentRepository departmentRepository;
@@ -43,9 +43,9 @@ public class EmployeeFactory {
     }
 
     private void setEmployeePosition(Employee employee, UUID positionId) {
-        EmployeePosition position = positionRepository.findById(positionId)
-                .orElseThrow(() -> new EmployeePositionNotFoundException(positionId));
-        employee.setEmployeePosition(position);
+        Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new PositionNotFoundException(positionId));
+        employee.setPosition(position);
     }
 
     private void setEmployeeDepartment(Employee employee, UUID departmentId) {
@@ -133,8 +133,8 @@ public class EmployeeFactory {
     }
 
     private void validatePosition(UUID positionId, EmployeeType type) {
-        EmployeePosition position = positionRepository.findById(positionId)
-                .orElseThrow(() -> new EmployeePositionNotFoundException(positionId));
+        Position position = positionRepository.findById(positionId)
+                .orElseThrow(() -> new PositionNotFoundException(positionId));
 
         if (position.getEmployeeType() != type) {
             throw new InvalidPositionException(positionId, type);

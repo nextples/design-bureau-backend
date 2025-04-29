@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Schema(description = "Ответ с информацией о должности")
-public class EmployeePositionDTO {
+public class PositionDTO {
 
     @Schema(description = "ID должности")
     private UUID id;
@@ -16,6 +16,6 @@ public class EmployeePositionDTO {
     @Schema(description = "Тип сотрудника", implementation = EmployeeType.class)
     private EmployeeType employeeType;
 
-    @Schema(description = "Название должности", example = "Конструктор")
+    @Schema(description = "Название должности", example = "Главный Конструктор")
     private String name;
 }

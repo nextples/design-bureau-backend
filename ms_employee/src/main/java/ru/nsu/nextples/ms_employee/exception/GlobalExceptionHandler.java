@@ -1,57 +1,95 @@
 package ru.nsu.nextples.ms_employee.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
-import ru.nsu.nextples.ms_employee.dto.error.ValidationErrorDTO;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationErrorDTO> handleValidationException(MethodArgumentNotValidException ex) {
-        ValidationErrorDTO error = new ValidationErrorDTO();
-        error.setMessage(ex.getMessage());
-        error.setStatus(HttpStatus.BAD_REQUEST.value());
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDTO> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));
-        error.setErrors(errors);
 
-        error.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ErrorDTO.builder()
+                        .message(ex.getMessage())
+                        .timestamp(LocalDateTime.now())
+                        .errors(errors)
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .build()
+                );
     }
 
-    @ExceptionHandler(ObjectNotFoundException.class)
-    public ResponseEntity<ErrorDTO> handleNotFoundException(ObjectNotFoundException ex) {
-        ErrorDTO error = new ErrorDTO();
-        error.setMessage(ex.getMessage());
-        error.setStatus(HttpStatus.NOT_FOUND.value());
-        error.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorDTO> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        String errorMessage = "Invalid request data";
+        List<String> allowedValues = null;
+
+        if (ex.getCause() instanceof InvalidFormatException cause) {
+            if (cause.getTargetType() != null && cause.getTargetType().isEnum()) {
+                errorMessage = "Invalid enum value";
+                allowedValues = getEnumValues(cause.getTargetType());
+            }
+        }
+        return ResponseEntity.badRequest()
+                .body(ErrorDTO.builder()
+                        .message(errorMessage)
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .allowedValues(allowedValues)
+                        .timestamp(LocalDateTime.now())
+                        .build()
+                );
     }
 
-    @ExceptionHandler(InvalidNameException.class)
-    public ResponseEntity<ErrorDTO> handleInvalidNameException(InvalidNameException ex) {
-        ErrorDTO error = new ErrorDTO();
-        error.setMessage(ex.getMessage());
-        error.setStatus(HttpStatus.BAD_REQUEST.value());
-        error.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    @ExceptionHandler({
+            ObjectNotFoundException.class,
+            InvalidNameException.class,
+            ObjectDeleteException.class,
+            DuplicatePositionException.class,
+            UnsupportedEmployeeTypeException.class
+    })
+    public ResponseEntity<ErrorDTO> handleCustomExceptions(RuntimeException ex) {
+        HttpStatus status = determineHttpStatus(ex);
+        return buildErrorResponse(ex.getMessage(), status);
     }
 
-    @ExceptionHandler(ObjectDeleteException.class)
-    public ResponseEntity<ErrorDTO> handleDeleteException(ObjectDeleteException ex) {
-        ErrorDTO error = new ErrorDTO();
-        error.setMessage(ex.getMessage());
-        error.setStatus(HttpStatus.CONFLICT.value());
-        error.setTimestamp(LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    private ResponseEntity<ErrorDTO> buildErrorResponse(String message, HttpStatus status) {
+        ErrorDTO error = ErrorDTO.builder()
+                .message(message)
+                .status(status.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    private HttpStatus determineHttpStatus(RuntimeException ex) {
+        if (ex instanceof ObjectNotFoundException) {
+            return HttpStatus.NOT_FOUND;
+        } else if (ex instanceof ObjectDeleteException) {
+            return HttpStatus.CONFLICT;
+        }
+        return HttpStatus.BAD_REQUEST;
+    }
+
+    private List<String> getEnumValues(Class<?> enumClass) {
+        return Arrays.stream(enumClass.getEnumConstants())
+                .map(Object::toString)
+                .collect(Collectors.toList());
     }
 }

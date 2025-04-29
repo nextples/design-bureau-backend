@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentUpdateDTO;
@@ -29,6 +30,7 @@ public class DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
 
+    @Transactional
     public DepartmentDTO createDepartment(DepartmentCreateDTO request) {
         validateHead(request.getHeadId());
 
@@ -36,9 +38,11 @@ public class DepartmentService {
         setDepartmentName(department, request.getName());
         setDepartmentHead(department, request.getHeadId());
 
-        return mapToDTO(department, true);
+        Department savedDepartment = departmentRepository.save(department);
+        return mapToDTO(savedDepartment, true);
     }
 
+    @Transactional
     public DepartmentDTO updateDepartment(UUID id, DepartmentUpdateDTO request) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new DepartmentNotFoundException(id));
@@ -47,9 +51,11 @@ public class DepartmentService {
         setDepartmentHead(department, request.getHeadId());
         setDepartmentName(department, request.getName());
 
-        return mapToDTO(department, true);
+        Department updatedDepartment = departmentRepository.save(department);
+        return mapToDTO(updatedDepartment, true);
     }
 
+    @Transactional(readOnly = true)
     public Page<DepartmentDTO> getAllDepartments(String name, UUID headId, Pageable pageable) {
         Specification<Department> spec = Specification.where(null);
 
@@ -64,6 +70,7 @@ public class DepartmentService {
                 .map(department -> mapToDTO(department, false));
     }
 
+    @Transactional(readOnly = true)
     public DepartmentDTO getDepartmentDetails(UUID id) {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new DepartmentNotFoundException(id));
@@ -71,6 +78,7 @@ public class DepartmentService {
         return mapToDTO(department, true);
     }
 
+    @Transactional
     public void deleteDepartment(UUID id) {
         if (departmentRepository.existsByEmployees_Id(id)) {
             throw new DepartmentHasEmployeesDeleteException(id);

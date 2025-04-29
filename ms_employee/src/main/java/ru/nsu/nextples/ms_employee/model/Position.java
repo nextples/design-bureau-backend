@@ -8,19 +8,19 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(
-        name = "employee_positions",
+        name = "positions",
         uniqueConstraints = @UniqueConstraint(
-                columnNames = {"employeeType", "name"}
+                columnNames = {"employee_type", "name"}
         )
 )
-public class EmployeePosition {
+public class Position {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "employee_type", nullable = false)
     private EmployeeType employeeType;
 
     @Column(nullable = false, length = 100)

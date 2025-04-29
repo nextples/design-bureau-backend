@@ -20,10 +20,9 @@ public class DepartmentSpecifications {
     }
 
     public static Specification<Department> hasHead(UUID headId) {
-        return (root, query, cb) -> {
-            if (headId == null) {
-                return cb.conjunction();
-            }
+        return (root, query, cb) ->
+        {
+            if (headId == null) return cb.conjunction();
             return cb.equal(root.get("head").get("id"), headId);
         };
     }

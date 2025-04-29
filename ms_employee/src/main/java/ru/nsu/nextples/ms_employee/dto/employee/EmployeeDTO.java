@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import ru.nsu.nextples.ms_employee.dto.EngineerSpecializationDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
-import ru.nsu.nextples.ms_employee.dto.EmployeePositionDTO;
+import ru.nsu.nextples.ms_employee.dto.PositionDTO;
 import ru.nsu.nextples.ms_employee.dto.LaboratoryDTO;
 import ru.nsu.nextples.ms_employee.model.EmployeeType;
 
@@ -27,8 +27,8 @@ public class EmployeeDTO {
     @Schema(description = "Фамилия сотрудника", example = "Петров")
     private String lastName;
 
-    @Schema(description = "Должность сотрудника", implementation = EmployeePositionDTO.class)
-    private EmployeePositionDTO position;
+    @Schema(description = "Должность сотрудника", implementation = PositionDTO.class)
+    private PositionDTO position;
 
     @Schema(description = "Тип сотрудника", implementation = EmployeeType.class)
     private EmployeeType employeeType;

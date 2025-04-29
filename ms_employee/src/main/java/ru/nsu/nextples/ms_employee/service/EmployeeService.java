@@ -11,9 +11,8 @@ import ru.nsu.nextples.ms_employee.dto.employee.EmployeeCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeUpdateDTO;
 import ru.nsu.nextples.ms_employee.exception.EmployeeNotFoundException;
-import ru.nsu.nextples.ms_employee.exception.EmployeePositionNotFoundException;
 import ru.nsu.nextples.ms_employee.model.*;
-import ru.nsu.nextples.ms_employee.repository.EmployeePositionRepository;
+import ru.nsu.nextples.ms_employee.repository.PositionRepository;
 import ru.nsu.nextples.ms_employee.repository.EmployeeRepository;
 import ru.nsu.nextples.ms_employee.repository.specifications.EmployeeSpecifications;
 
@@ -26,7 +25,7 @@ public class EmployeeService {
 
     private final EmployeeFactory employeeFactory;
     private final EmployeeRepository employeeRepository;
-    private final EmployeePositionRepository employeePositionRepository;
+    private final PositionRepository positionRepository;
 
     @Transactional
     public EmployeeDTO createEmployee(EmployeeCreateDTO request) {
@@ -45,6 +44,7 @@ public class EmployeeService {
         return mapToDTO(savedEmployee, true);
     }
 
+    @Transactional(readOnly = true)
     public Page<EmployeeDTO> getAllEmployees(
             String firstName,
             String lastName,
@@ -79,6 +79,7 @@ public class EmployeeService {
                 .map(employee -> mapToDTO(employee, false));
     }
 
+    @Transactional(readOnly = true)
     public EmployeeDTO getEmployeeDetails(UUID id) {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new EmployeeNotFoundException(id));
@@ -99,7 +100,7 @@ public class EmployeeService {
         dto.setFirstName(employee.getFirstName());
         dto.setLastName(employee.getLastName());
         dto.setEmployeeType(employee.getEmployeeType());
-        dto.setPosition(EmployeePositionService.mapToDTO(employee.getEmployeePosition()));
+        dto.setPosition(PositionService.mapToDTO(employee.getPosition()));
 
         if (detailed) {
             dto.setAge(employee.getAge());

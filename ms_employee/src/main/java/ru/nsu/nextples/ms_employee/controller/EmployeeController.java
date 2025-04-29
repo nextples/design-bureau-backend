@@ -21,7 +21,6 @@ import ru.nsu.nextples.ms_employee.dto.employee.EmployeeCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeUpdateDTO;
 import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
-import ru.nsu.nextples.ms_employee.dto.error.ValidationErrorDTO;
 import ru.nsu.nextples.ms_employee.model.EmployeeType;
 import ru.nsu.nextples.ms_employee.service.EmployeeService;
 
@@ -51,7 +50,7 @@ public class EmployeeController {
                     description = "Bad Request",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ValidationErrorDTO.class)
+                            schema = @Schema(implementation = ErrorDTO.class)
                     )
             )
     })
@@ -77,7 +76,7 @@ public class EmployeeController {
                     description = "Bad Request",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ValidationErrorDTO.class)
+                            schema = @Schema(implementation = ErrorDTO.class)
                     )
             ),
             @ApiResponse(
