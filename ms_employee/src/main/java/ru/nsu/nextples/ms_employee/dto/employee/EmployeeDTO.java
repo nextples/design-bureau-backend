@@ -2,10 +2,10 @@ package ru.nsu.nextples.ms_employee.dto.employee;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import ru.nsu.nextples.ms_employee.dto.EngineerSpecializationDTO;
+import ru.nsu.nextples.ms_employee.dto.employee.engineer.EngineerSpecializationDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
-import ru.nsu.nextples.ms_employee.dto.PositionDTO;
-import ru.nsu.nextples.ms_employee.dto.LaboratoryDTO;
+import ru.nsu.nextples.ms_employee.dto.position.PositionDTO;
+import ru.nsu.nextples.ms_employee.dto.employee.lab_assistant.LaboratoryDTO;
 import ru.nsu.nextples.ms_employee.model.EmployeeType;
 
 import java.util.Set;

@@ -17,33 +17,30 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.nsu.nextples.ms_employee.dto.position.PositionCreateDTO;
-import ru.nsu.nextples.ms_employee.dto.position.PositionDTO;
-import ru.nsu.nextples.ms_employee.dto.position.PositionUpdateDTO;
-import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
+import ru.nsu.nextples.ms_employee.dto.employee.engineer.EngineerSpecializationCreateUpdateDTO;
+import ru.nsu.nextples.ms_employee.dto.employee.engineer.EngineerSpecializationDTO;
 import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
-import ru.nsu.nextples.ms_employee.model.EmployeeType;
-import ru.nsu.nextples.ms_employee.service.PositionService;
+import ru.nsu.nextples.ms_employee.service.EngineerSpecializationService;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/positions")
-@Tag(name = "Должности", description = "Управление должностями сотрудников")
+@RequestMapping("/api/v1/specializations")
+@Tag(name = "Специализации инженера", description = "Управление специализациями инженеров")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class PositionController {
+public class EngineerSpecializationController {
 
-    private final PositionService positionService;
+    private final EngineerSpecializationService specializationService;
 
     @PostMapping
-    @Operation(summary = "Создать должность")
+    @Operation(summary = "Создать специализацию")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = PositionDTO.class)
+                            schema = @Schema(implementation = EngineerSpecializationDTO.class)
                     )
             ),
             @ApiResponse(
@@ -55,13 +52,15 @@ public class PositionController {
                     )
             )
     })
-    public ResponseEntity<PositionDTO> createEmployee(@Valid @RequestBody PositionCreateDTO request) {
+    public ResponseEntity<EngineerSpecializationDTO> createSpecialization(
+            @Valid @RequestBody EngineerSpecializationCreateUpdateDTO request
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(positionService.createPosition(request));
+                .body(specializationService.createSpecialization(request));
     }
 
 
-    @Operation(summary = "Обновить должность")
+    @Operation(summary = "Обновить специализацию")
     @PutMapping("/{id}")
     @ApiResponses(value = {
             @ApiResponse(
@@ -69,7 +68,7 @@ public class PositionController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = PositionDTO.class)
+                            schema = @Schema(implementation = EngineerSpecializationDTO.class)
                     )
             ),
             @ApiResponse(
@@ -89,20 +88,20 @@ public class PositionController {
                     )
             )
     })
-    public ResponseEntity<PositionDTO> updateEmployee(
+    public ResponseEntity<EngineerSpecializationDTO> updateSpecialization(
             @PathVariable UUID id,
-            @Valid @RequestBody PositionUpdateDTO request
+            @Valid @RequestBody EngineerSpecializationCreateUpdateDTO request
     ) {
-        return ResponseEntity.ok(positionService.updatePosition(id, request));
+        return ResponseEntity.ok(specializationService.updateSpecialization(id, request));
     }
 
 
     @GetMapping
     @Operation(
-            summary = "Получить список должностей",
+            summary = "Получить список специализаций",
             parameters = {
-                    @Parameter(name = "type", description = "Тип сотрудника"),
-                    @Parameter(name = "name", description = "Часть названия должности"),
+                    @Parameter(name = "id", description = "UUID специализации"),
+                    @Parameter(name = "name", description = "Часть названия специализации"),
                     @Parameter(name = "page", description = "Номер страницы", example = "0"),
                     @Parameter(name = "size", description = "Размер страницы", example = "20")
             }
@@ -113,45 +112,21 @@ public class PositionController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = EmployeeDTO.class))
+                            array = @ArraySchema(schema = @Schema(implementation = EngineerSpecializationDTO.class))
                     )
             )
     })
-    public ResponseEntity<Page<PositionDTO>> getAllPositions(
-            @RequestParam(required = false) EmployeeType type,
+    public ResponseEntity<Page<EngineerSpecializationDTO>> getSpecializations(
+            @RequestParam(required = false) UUID id,
             @RequestParam(required = false) String name,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(positionService.getAllPositions(type, name, pageable));
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Получить информацию о должности")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = PositionDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Not Found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDTO.class)
-                    )
-            )
-    })
-    public ResponseEntity<PositionDTO> getEmployeeDetails(@PathVariable UUID id) {
-        return ResponseEntity.ok(positionService.getPosition(id));
+        return ResponseEntity.ok(specializationService.getSpecializations(id, name, pageable));
     }
 
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить должность")
+    @Operation(summary = "Удалить специализацию")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
@@ -166,8 +141,8 @@ public class PositionController {
                     )
             )
     })
-    public ResponseEntity<Void> deletePosition(@PathVariable UUID id) {
-        positionService.deletePosition(id);
+    public ResponseEntity<Void> deleteSpecialization(@PathVariable UUID id) {
+        specializationService.deleteSpecialization(id);
         return ResponseEntity.noContent().build();
     }
 }

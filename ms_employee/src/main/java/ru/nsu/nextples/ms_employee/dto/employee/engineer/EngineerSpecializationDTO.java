@@ -1,9 +1,8 @@
-package ru.nsu.nextples.ms_employee.dto;
+package ru.nsu.nextples.ms_employee.dto.employee.engineer;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.List;
 import java.util.UUID;
 
 @Data

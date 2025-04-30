@@ -1,4 +1,4 @@
-package ru.nsu.nextples.ms_employee.dto.employee;
+package ru.nsu.nextples.ms_employee.dto.employee.designer;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;

@@ -1,7 +1,7 @@
 package ru.nsu.nextples.ms_employee.service;
 
 import org.springframework.stereotype.Service;
-import ru.nsu.nextples.ms_employee.dto.LaboratoryDTO;
+import ru.nsu.nextples.ms_employee.dto.employee.lab_assistant.LaboratoryDTO;
 import ru.nsu.nextples.ms_employee.model.Laboratory;
 
 @Service
