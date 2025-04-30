@@ -55,4 +55,12 @@ public class EmployeeSpecifications {
             return cb.equal(root.join("position").get("id"), positionId);
         };
     }
+
+    public static Specification<Employee> hasDepartment(UUID departmentId) {
+        return (root, query, cb) ->
+        {
+            if (departmentId == null) return null;
+            return cb.equal(root.join("department").get("id"), departmentId);
+        };
+    }
 }

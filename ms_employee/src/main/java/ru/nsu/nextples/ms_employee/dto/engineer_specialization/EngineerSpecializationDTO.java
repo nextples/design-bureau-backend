@@ -1,4 +1,4 @@
-package ru.nsu.nextples.ms_employee.dto.employee.engineer;
+package ru.nsu.nextples.ms_employee.dto.engineer_specialization;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

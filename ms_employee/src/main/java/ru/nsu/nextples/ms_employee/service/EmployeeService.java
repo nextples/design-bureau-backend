@@ -52,6 +52,7 @@ public class EmployeeService {
             Integer ageTo,
             EmployeeType employeeType,
             UUID positionId,
+            UUID departmentId,
             Pageable pageable
     ) {
         Specification<Employee> spec = Specification.where(null);
@@ -73,6 +74,9 @@ public class EmployeeService {
         }
         if (positionId != null) {
             spec.and(EmployeeSpecifications.hasPosition(positionId));
+        }
+        if (departmentId != null) {
+            spec.and(EmployeeSpecifications.hasDepartment(departmentId));
         }
 
         return employeeRepository.findAll(spec, pageable)

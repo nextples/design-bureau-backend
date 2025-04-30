@@ -107,10 +107,10 @@ public class EmployeeController {
                     @Parameter(name = "ageTo", description = "Возраст (верхняя граница)"),
                     @Parameter(name = "employeeType", description = "Тип сотрудника",
                             schema = @Schema(implementation = EmployeeType.class)),
-                    @Parameter(name = "positionId", description = "ID должности из справочника"),
+                    @Parameter(name = "positionId", description = "ID должности"),
+                    @Parameter(name = "departmentId", description = "ID отдела"),
                     @Parameter(name = "page", description = "Номер страницы (начиная с 0)"),
                     @Parameter(name = "size", description = "Размер страницы (по умолчанию 20)"),
-                    @Parameter(name = "sort", description = "Сортировка (формат: поле,asc|desc)")
             }
     )
     @ApiResponses(value = {
@@ -130,11 +130,12 @@ public class EmployeeController {
             @RequestParam(required = false) Integer ageTo,
             @RequestParam(required = false) EmployeeType employeeType,
             @RequestParam(required = false) UUID positionId,
+            @RequestParam(required = false) UUID departmentId,
             @ParameterObject Pageable pageable
     ) {
         return ResponseEntity.ok(
                 employeeService.getAllEmployees(
-                        firstName, lastName, ageFrom, ageTo, employeeType, positionId, pageable
+                        firstName, lastName, ageFrom, ageTo, employeeType, positionId, departmentId, pageable
                 )
         );
     }

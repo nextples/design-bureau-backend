@@ -17,8 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.nsu.nextples.ms_employee.dto.employee.engineer.EngineerSpecializationCreateUpdateDTO;
-import ru.nsu.nextples.ms_employee.dto.employee.engineer.EngineerSpecializationDTO;
+import ru.nsu.nextples.ms_employee.dto.engineer_specialization.EngineerSpecializationCreateUpdateDTO;
+import ru.nsu.nextples.ms_employee.dto.engineer_specialization.EngineerSpecializationDTO;
 import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
 import ru.nsu.nextples.ms_employee.service.EngineerSpecializationService;
 
@@ -26,7 +26,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/specializations")
-@Tag(name = "Специализации инженера", description = "Управление специализациями инженеров")
+@Tag(name = "Специализации инженера", description = "API для управления специализациями инженеров")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EngineerSpecializationController {
 

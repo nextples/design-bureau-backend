@@ -17,33 +17,30 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.nsu.nextples.ms_employee.dto.position.PositionCreateDTO;
-import ru.nsu.nextples.ms_employee.dto.position.PositionDTO;
-import ru.nsu.nextples.ms_employee.dto.position.PositionUpdateDTO;
-import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
 import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
-import ru.nsu.nextples.ms_employee.model.EmployeeType;
-import ru.nsu.nextples.ms_employee.service.PositionService;
+import ru.nsu.nextples.ms_employee.dto.laboratory.LaboratoryCreateUpdateDTO;
+import ru.nsu.nextples.ms_employee.dto.laboratory.LaboratoryDTO;
+import ru.nsu.nextples.ms_employee.service.LaboratoryService;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/positions")
-@Tag(name = "Должности", description = "API для управления должностями сотрудников")
+@RequestMapping("/api/v1/labs")
+@Tag(name = "Лаборатории", description = "API для управления лабораториями")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class PositionController {
+public class LaboratoryController {
 
-    private final PositionService positionService;
+    private final LaboratoryService laboratoryService;
 
     @PostMapping
-    @Operation(summary = "Создать должность")
+    @Operation(summary = "Создать лабораторию")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = PositionDTO.class)
+                            schema = @Schema(implementation = LaboratoryDTO.class)
                     )
             ),
             @ApiResponse(
@@ -55,13 +52,15 @@ public class PositionController {
                     )
             )
     })
-    public ResponseEntity<PositionDTO> createEmployee(@Valid @RequestBody PositionCreateDTO request) {
+    public ResponseEntity<LaboratoryDTO> createLaboratory(
+            @Valid @RequestBody LaboratoryCreateUpdateDTO request
+    ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(positionService.createPosition(request));
+                .body(laboratoryService.creteLaboratory(request));
     }
 
 
-    @Operation(summary = "Обновить должность")
+    @Operation(summary = "Обновить лабораторию")
     @PutMapping("/{id}")
     @ApiResponses(value = {
             @ApiResponse(
@@ -69,7 +68,7 @@ public class PositionController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = PositionDTO.class)
+                            schema = @Schema(implementation = LaboratoryDTO.class)
                     )
             ),
             @ApiResponse(
@@ -89,20 +88,20 @@ public class PositionController {
                     )
             )
     })
-    public ResponseEntity<PositionDTO> updateEmployee(
+    public ResponseEntity<LaboratoryDTO> updateLaboratory(
             @PathVariable UUID id,
-            @Valid @RequestBody PositionUpdateDTO request
+            @Valid @RequestBody LaboratoryCreateUpdateDTO request
     ) {
-        return ResponseEntity.ok(positionService.updatePosition(id, request));
+        return ResponseEntity.ok(laboratoryService.updateLaboratory(id, request));
     }
 
 
     @GetMapping
     @Operation(
-            summary = "Получить список должностей",
+            summary = "Получить список лабораторий",
             parameters = {
-                    @Parameter(name = "type", description = "Тип сотрудника"),
-                    @Parameter(name = "name", description = "Часть названия должности"),
+                    @Parameter(name = "id", description = "UUID лаборатории"),
+                    @Parameter(name = "name", description = "Часть названия лаборатории"),
                     @Parameter(name = "page", description = "Номер страницы", example = "0"),
                     @Parameter(name = "size", description = "Размер страницы", example = "20")
             }
@@ -113,45 +112,21 @@ public class PositionController {
                     description = "Successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = EmployeeDTO.class))
+                            array = @ArraySchema(schema = @Schema(implementation = LaboratoryDTO.class))
                     )
             )
     })
-    public ResponseEntity<Page<PositionDTO>> getAllPositions(
-            @RequestParam(required = false) EmployeeType type,
+    public ResponseEntity<Page<LaboratoryDTO>> getLaboratories(
+            @RequestParam(required = false) UUID id,
             @RequestParam(required = false) String name,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(positionService.getAllPositions(type, name, pageable));
-    }
-
-    @GetMapping("/{id}")
-    @Operation(summary = "Получить информацию о должности")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = PositionDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Not Found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDTO.class)
-                    )
-            )
-    })
-    public ResponseEntity<PositionDTO> getEmployeeDetails(@PathVariable UUID id) {
-        return ResponseEntity.ok(positionService.getPosition(id));
+        return ResponseEntity.ok(laboratoryService.getLaboratories(id, name, pageable));
     }
 
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить должность")
+    @Operation(summary = "Удалить лабораторию")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
@@ -166,8 +141,8 @@ public class PositionController {
                     )
             )
     })
-    public ResponseEntity<Void> deletePosition(@PathVariable UUID id) {
-        positionService.deletePosition(id);
+    public ResponseEntity<Void> deleteLaboratory(@PathVariable UUID id) {
+        laboratoryService.deleteLaboratory(id);
         return ResponseEntity.noContent().build();
     }
 }

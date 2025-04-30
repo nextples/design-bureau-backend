@@ -1,4 +1,4 @@
-package ru.nsu.nextples.ms_employee.dto.employee.lab_assistant;
+package ru.nsu.nextples.ms_employee.dto.laboratory;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
