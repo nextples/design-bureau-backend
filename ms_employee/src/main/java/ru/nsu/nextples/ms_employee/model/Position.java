@@ -17,6 +17,7 @@ public class Position {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "position_id", nullable = false)
     private UUID id;
 
     @Enumerated(EnumType.STRING)
