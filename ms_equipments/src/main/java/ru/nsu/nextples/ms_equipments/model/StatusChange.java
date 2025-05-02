@@ -8,8 +8,8 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "status_history")
-public class StatusHistory {
+@Table(name = "status_changes")
+public class StatusChange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

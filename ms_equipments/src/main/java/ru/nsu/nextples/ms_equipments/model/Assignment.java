@@ -3,13 +3,16 @@ package ru.nsu.nextples.ms_equipments.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Data
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "assignment_type", discriminatorType = DiscriminatorType.STRING)
 @Entity
-@Table(name = "equipment_history")
-public class EquipmentHistory {
+@Table(name = "assignments")
+@Data
+public abstract class Assignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,19 +23,15 @@ public class EquipmentHistory {
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
-    @Column(name = "department_id")
-    private UUID departmentId;
-
-    @Column(name = "project_id")
-    private UUID projectId;
-
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_type")
-    private TransactionType transactionType;
+    @Column(name = "hours_used")
+    private Integer hoursUsed;
+
+    @Column(length = 500)
+    private String purpose;
 }

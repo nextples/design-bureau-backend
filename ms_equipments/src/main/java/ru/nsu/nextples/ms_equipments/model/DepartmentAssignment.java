@@ -9,9 +9,9 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@DiscriminatorValue("PROJECT")
-public class ProjectAssignment extends Assignment {
+@DiscriminatorValue("DEPARTMENT")
+public class DepartmentAssignment extends Assignment {
 
-    @Column(name = "project_id")
-    private UUID projectId;
+    @Column(name = "department_id")
+    private UUID departmentId;
 }

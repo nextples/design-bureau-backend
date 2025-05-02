@@ -22,10 +22,10 @@ public class Equipment {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "serial_number", unique = true, length = 10)
+    @Column(name = "serial_number", length = 10)
     @Pattern(
-            regexp = "^EQ-[A-Z]{3}\\d{4}$",
-            message = "Серийный номер должен быть записан в формате EQ-AAA0000" +
+            regexp = "^(|EQ-[A-Z]{3}\\\\d{4})$",
+            message = "Серийный номер должен остаться пустым или быть записан в формате EQ-AAA0000" +
                       "(AAA = заглавные латинские буквы, 0000 = цифры)"
     )
     private String serialNumber;
@@ -44,17 +44,17 @@ public class Equipment {
     @Column(name = "current_department_id")
     private UUID currentDepartmentId;
 
+    @Column(name = "current_project_id")
+    private UUID currentProjectId;
+
     @Column(name = "is_shared")
     private boolean isShared;
 
-    @Column(name = "last_maintenance_date")
-    private LocalDate lastMaintenanceDate;
+    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
+    private List<Assignment> assignments = new ArrayList<>();
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
-    private List<EquipmentHistory> historyRecords = new ArrayList<>();
-
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
-    private List<ProjectAssignment> projectAssignments = new ArrayList<>();
+    private List<StatusChange> statusChanges = new ArrayList<>();
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
     private List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();
