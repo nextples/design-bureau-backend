@@ -7,6 +7,7 @@ import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentCreateDTO;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDTO;
 import ru.nsu.nextples.ms_equipments.exception.ObjectNotFoundException;
 import ru.nsu.nextples.ms_equipments.model.*;
+import ru.nsu.nextples.ms_equipments.repository.EquipmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentTypeRepository;
 
 import java.util.List;
@@ -16,7 +17,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EquipmentService {
 
-    EquipmentTypeRepository typeRepository;
+    private final EquipmentRepository equipmentRepository;
+    private final EquipmentTypeRepository typeRepository;
 
     public EquipmentDTO createEquipment(EquipmentCreateDTO request) {
         EquipmentType type = typeRepository.findById(request.getEquipmentTypeId())
@@ -32,7 +34,9 @@ public class EquipmentService {
         equipment.setCurrentDepartmentId(request.getInitialDepartmentOwnerId());
         equipment.setCurrentProjectId(null);
         equipment.setShared(request.getIsShared());
-        return null;
+
+        Equipment savedEquipment = equipmentRepository.save(equipment);
+        return mapToDTO(savedEquipment, true);
     }
 
     public static EquipmentDTO mapToDTO(Equipment entity, boolean detailed) {
