@@ -47,10 +47,13 @@ public class DepartmentService {
         Department department = departmentRepository.findById(id)
                 .orElseThrow(() -> new DepartmentNotFoundException(id));
 
-        validateHead(request.getHeadId());
-        setDepartmentHead(department, request.getHeadId());
-        setDepartmentName(department, request.getName());
-
+        if (request.getHeadId() != null) {
+            validateHead(request.getHeadId());
+            setDepartmentHead(department, request.getHeadId());
+        }
+        if (request.getName() != null) {
+            setDepartmentName(department, request.getName());
+        }
         Department updatedDepartment = departmentRepository.save(department);
         return mapToDTO(updatedDepartment, true);
     }

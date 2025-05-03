@@ -16,7 +16,7 @@ public abstract class Assignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "history_id")
+    @Column(name = "assignment_id")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)

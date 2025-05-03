@@ -2,15 +2,24 @@ package ru.nsu.nextples.ms_equipments.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentCreateDTO;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDTO;
+import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentUpdateDTO;
+import ru.nsu.nextples.ms_equipments.exception.DeleteConflictException;
+import ru.nsu.nextples.ms_equipments.exception.DoubleDeleteException;
 import ru.nsu.nextples.ms_equipments.exception.ObjectNotFoundException;
 import ru.nsu.nextples.ms_equipments.model.*;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentTypeRepository;
+import ru.nsu.nextples.ms_equipments.repository.specifications.EquipmentSpecifications;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +29,7 @@ public class EquipmentService {
     private final EquipmentRepository equipmentRepository;
     private final EquipmentTypeRepository typeRepository;
 
+    @Transactional
     public EquipmentDTO createEquipment(EquipmentCreateDTO request) {
         EquipmentType type = typeRepository.findById(request.getEquipmentTypeId())
                 .orElseThrow(() -> new ObjectNotFoundException("Equipment", request.getEquipmentTypeId()));
@@ -37,6 +47,102 @@ public class EquipmentService {
 
         Equipment savedEquipment = equipmentRepository.save(equipment);
         return mapToDTO(savedEquipment, true);
+    }
+
+    @Transactional
+    public EquipmentDTO updateEquipment(UUID id, EquipmentUpdateDTO request) {
+        Specification<Equipment> existSpec = Specification.where(EquipmentSpecifications.hasId(id))
+                .and(EquipmentSpecifications.notDeleted());
+        Equipment equipment = equipmentRepository.findOne(existSpec)
+                .orElseThrow(() -> new ObjectNotFoundException("Equipment", id));
+
+        if (equipment.getName() != null) {
+            equipment.setName(request.getName());
+        }
+        if (equipment.getSerialNumber() != null) {
+            equipment.setSerialNumber(request.getSerialNumber());
+        }
+        if (request.getEquipmentTypeId() != null) {
+            EquipmentType type = typeRepository.findById(request.getEquipmentTypeId())
+                    .orElseThrow(() -> new ObjectNotFoundException("Equipment", request.getEquipmentTypeId()));
+            equipment.setType(type);
+        }
+        if (request.getPurchaseDate() != null) {
+            equipment.setPurchaseDate(request.getPurchaseDate());
+        }
+        if (request.getIsShared() != null) {
+            equipment.setShared(request.getIsShared());
+        }
+        Equipment savedEquipment = equipmentRepository.save(equipment);
+        return mapToDTO(savedEquipment, true);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<EquipmentDTO> getEquipments(String name,
+                                            EquipmentStatus status,
+                                            UUID departmentId,
+                                            UUID projectId,
+                                            UUID typeId,
+                                            Pageable pageable
+    ) {
+        Specification<Equipment> spec = Specification.where(null);
+        if (name != null) {
+            spec = spec.and(EquipmentSpecifications.nameContains(name));
+        }
+        if (status != null) {
+            spec = spec.and(EquipmentSpecifications.hasStatus(status));
+        }
+        if (departmentId != null) {
+            spec = spec.and(EquipmentSpecifications.hasDepartmentId(departmentId));
+        }
+        if (projectId != null) {
+            spec = spec.and(EquipmentSpecifications.hasProjectId(projectId));
+        }
+        if (typeId != null) {
+            spec = spec.and(EquipmentSpecifications.hasTypeId(typeId));
+        }
+        spec.and(EquipmentSpecifications.notDeleted());
+
+        Page<Equipment> equipments = equipmentRepository.findAll(spec, pageable);
+        return equipments.map(equipment -> mapToDTO(equipment, false));
+    }
+
+    @Transactional(readOnly = true)
+    public EquipmentDTO getEquipmentDetails(UUID id) {
+        Specification<Equipment> existSpec = Specification.where(EquipmentSpecifications.hasId(id))
+                .and(EquipmentSpecifications.notDeleted());
+        Equipment equipment = equipmentRepository.findOne(existSpec)
+                .orElseThrow(() -> new ObjectNotFoundException("Equipment", id));
+
+        return mapToDTO(equipment, true);
+    }
+
+    @Transactional
+    public void softDeleteEquipment(UUID id) {
+        Specification<Equipment> safeDeleteSpec = Specification.where(
+                        EquipmentSpecifications.hasId(id)
+                ).and(EquipmentSpecifications.notDeleted())
+                .and(EquipmentSpecifications.hasNoActiveDependencies());
+
+        Equipment equipment = equipmentRepository.findOne(safeDeleteSpec)
+                .orElseThrow(() -> {
+                    boolean exists = equipmentRepository.existsById(id);
+
+                    if (!exists) {
+                        return new ObjectNotFoundException("Equipment", id);
+                    }
+                    boolean isDeleted = equipmentRepository.exists(
+                            EquipmentSpecifications.hasId(id)
+                                    .and(EquipmentSpecifications.isDeleted())
+                    );
+                    if (isDeleted) {
+                        return new DoubleDeleteException("Equipment", id);
+                    }
+                    return new DeleteConflictException("Equipment", id);
+                });
+
+        equipment.setDeleted(true);
+        equipmentRepository.save(equipment);
     }
 
     public static EquipmentDTO mapToDTO(Equipment entity, boolean detailed) {

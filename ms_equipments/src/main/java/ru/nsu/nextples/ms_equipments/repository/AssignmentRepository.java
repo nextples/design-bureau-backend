@@ -6,6 +6,7 @@ import ru.nsu.nextples.ms_equipments.model.Equipment;
 
 import java.util.UUID;
 
-public interface EquipmentRepository
+public interface AssignmentRepository
         extends JpaRepository<Equipment, UUID>, JpaSpecificationExecutor<Equipment> {
+
 }

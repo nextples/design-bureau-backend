@@ -58,4 +58,7 @@ public class Equipment {
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
     private List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 }

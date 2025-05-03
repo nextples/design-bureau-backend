@@ -32,6 +32,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             ObjectNotFoundException.class,
+            DeleteConflictException.class,
+            DoubleDeleteException.class,
     })
     public ResponseEntity<ErrorDTO> handleCustomExceptions(RuntimeException ex) {
         HttpStatus status = determineHttpStatus(ex);
@@ -41,6 +43,11 @@ public class GlobalExceptionHandler {
     private HttpStatus determineHttpStatus(RuntimeException ex) {
         if (ex instanceof ObjectNotFoundException) {
             return HttpStatus.NOT_FOUND;
+        }
+        if (ex instanceof DeleteConflictException ||
+            ex instanceof DoubleDeleteException
+        ) {
+            return HttpStatus.METHOD_NOT_ALLOWED;
         }
         return HttpStatus.BAD_REQUEST;
     }

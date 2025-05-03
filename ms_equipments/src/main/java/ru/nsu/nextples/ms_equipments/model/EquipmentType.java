@@ -23,4 +23,7 @@ public class EquipmentType {
 
     @Enumerated(EnumType.STRING)
     private EquipmentCategory category;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 }
