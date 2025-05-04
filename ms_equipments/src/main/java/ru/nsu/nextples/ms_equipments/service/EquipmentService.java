@@ -7,12 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.nsu.nextples.ms_equipments.client.EmployeeServiceClient;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentCreateDTO;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDTO;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentUpdateDTO;
 import ru.nsu.nextples.ms_equipments.exception.DeleteConflictException;
-import ru.nsu.nextples.ms_equipments.exception.DoubleDeleteException;
 import ru.nsu.nextples.ms_equipments.exception.ObjectNotFoundException;
 import ru.nsu.nextples.ms_equipments.model.*;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentRepository;
@@ -130,16 +128,8 @@ public class EquipmentService {
         Equipment equipment = equipmentRepository.findOne(safeDeleteSpec)
                 .orElseThrow(() -> {
                     boolean exists = equipmentRepository.existsById(id);
-
                     if (!exists) {
                         return new ObjectNotFoundException("Equipment", id);
-                    }
-                    boolean isDeleted = equipmentRepository.exists(
-                            EquipmentSpecifications.hasId(id)
-                                    .and(EquipmentSpecifications.isDeleted())
-                    );
-                    if (isDeleted) {
-                        return new DoubleDeleteException("Equipment", id);
                     }
                     return new DeleteConflictException("Equipment", id);
                 });

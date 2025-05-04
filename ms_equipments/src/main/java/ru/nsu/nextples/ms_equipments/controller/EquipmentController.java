@@ -148,7 +148,7 @@ public class EquipmentController {
                     )
             )
     })
-    public ResponseEntity<EquipmentDTO> getDepartmentDetails(@PathVariable UUID id) {
+    public ResponseEntity<EquipmentDTO> getEquipmentDetails(@PathVariable UUID id) {
         return ResponseEntity.ok(equipmentService.getEquipmentDetails(id));
     }
 
@@ -176,14 +176,6 @@ public class EquipmentController {
                             schema = @Schema(implementation = ErrorDTO.class)
                     )
             ),
-            @ApiResponse(
-                    responseCode = "405",
-                    description = "Method Not Allowed",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDTO.class)
-                    )
-            )
     })
     public ResponseEntity<Void> deleteEquipment(@PathVariable UUID id) {
         equipmentService.softDeleteEquipment(id);
