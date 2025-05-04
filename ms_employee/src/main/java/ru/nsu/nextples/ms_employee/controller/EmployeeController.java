@@ -166,6 +166,13 @@ public class EmployeeController {
     }
 
 
+    @GetMapping("/{id}/exists")
+    @Operation(summary = "Проверить существование сотрудника")
+    public ResponseEntity<Boolean> checkEmployeeExists(@PathVariable UUID id) {
+        return ResponseEntity.ok(employeeService.checkIfEmployeeExists(id));
+    }
+
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить сотрудника")
     @ApiResponses(value = {

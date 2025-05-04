@@ -25,7 +25,11 @@ public class EmployeeService {
 
     private final EmployeeFactory employeeFactory;
     private final EmployeeRepository employeeRepository;
-    private final PositionRepository positionRepository;
+
+    @Transactional(readOnly = true)
+    public Boolean checkIfEmployeeExists(UUID id) {
+        return employeeRepository.existsById(id);
+    }
 
     @Transactional
     public EmployeeDTO createEmployee(EmployeeCreateDTO request) {

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.nsu.nextples.ms_equipments.client.EmployeeServiceClient;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentCreateDTO;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDTO;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentUpdateDTO;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EquipmentService {
 
+    private final ExistenceService existenceService;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentTypeRepository typeRepository;
 
@@ -34,13 +36,14 @@ public class EquipmentService {
         EquipmentType type = typeRepository.findById(request.getEquipmentTypeId())
                 .orElseThrow(() -> new ObjectNotFoundException("Equipment", request.getEquipmentTypeId()));
 
+        existenceService.checkDepartmentExists(request.getInitialDepartmentOwnerId());
+
         Equipment equipment = new Equipment();
         equipment.setName(request.getName());
         equipment.setSerialNumber(request.getSerialNumber());
         equipment.setType(type);
         equipment.setPurchaseDate(request.getPurchaseDate());
         equipment.setStatus(EquipmentStatus.AVAILABLE);
-        //TODO: валидация значения departmentId через клиента к ms_employee
         equipment.setCurrentDepartmentId(request.getInitialDepartmentOwnerId());
         equipment.setCurrentProjectId(null);
         equipment.setShared(request.getIsShared());

@@ -1,15 +1,21 @@
 package ru.nsu.nextples.ms_equipments.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import feign.FeignException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.nsu.nextples.ms_equipments.dto.error.ErrorDTO;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -22,10 +28,41 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorDTO.builder()
-                        .message(ex.getMessage())
+                        .message("Validation in request data failed")
                         .timestamp(LocalDateTime.now())
                         .errors(errors)
                         .status(HttpStatus.BAD_REQUEST.value())
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<ErrorDTO> handleFeignException(FeignException ex) {
+        return ResponseEntity.status(ex.status())
+                .body(ErrorDTO.builder()
+                        .message("Error when accessing an external service: " + ex.getMessage())
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .timestamp(LocalDateTime.now())
+                        .build());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorDTO> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        String errorMessage = "Invalid request data";
+        List<String> allowedValues = null;
+
+        if (ex.getCause() instanceof InvalidFormatException cause) {
+            if (cause.getTargetType() != null && cause.getTargetType().isEnum()) {
+                errorMessage = "Invalid enum value";
+                allowedValues = getEnumValues(cause.getTargetType());
+            }
+        }
+        return ResponseEntity.badRequest()
+                .body(ErrorDTO.builder()
+                        .message(errorMessage)
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .allowedValues(allowedValues)
+                        .timestamp(LocalDateTime.now())
                         .build()
                 );
     }
@@ -60,5 +97,11 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(status).body(error);
+    }
+
+    private List<String> getEnumValues(Class<?> enumClass) {
+        return Arrays.stream(enumClass.getEnumConstants())
+                .map(Object::toString)
+                .collect(Collectors.toList());
     }
 }

@@ -27,7 +27,7 @@ import ru.nsu.nextples.ms_equipments.service.EquipmentService;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/equipment")
+@RequestMapping("/api/v1/equipment")
 @Tag(name = "Оборудование", description = "API для управления оборудованием")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EquipmentController {

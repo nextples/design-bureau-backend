@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ErrorDTO.builder()
-                        .message(ex.getMessage())
+                        .message("Validation in request data failed")
                         .timestamp(LocalDateTime.now())
                         .errors(errors)
                         .status(HttpStatus.BAD_REQUEST.value())

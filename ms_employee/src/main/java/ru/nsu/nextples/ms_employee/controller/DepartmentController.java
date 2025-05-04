@@ -143,6 +143,13 @@ public class DepartmentController {
     }
 
 
+    @GetMapping("/{id}/exists")
+    @Operation(summary = "Проверить существование отдела")
+    public ResponseEntity<Boolean> checkEmployeeExists(@PathVariable UUID id) {
+        return ResponseEntity.ok(departmentService.checkIfDepartmentExists(id));
+    }
+
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить отдел")
     @ApiResponses(value = {

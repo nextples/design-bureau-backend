@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentUpdateDTO;
@@ -29,6 +30,11 @@ public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
     private final EmployeeRepository employeeRepository;
+
+    @Transactional(readOnly = true)
+    public Boolean checkIfDepartmentExists(@PathVariable UUID id) {
+        return departmentRepository.existsById(id);
+    }
 
     @Transactional
     public DepartmentDTO createDepartment(DepartmentCreateDTO request) {
