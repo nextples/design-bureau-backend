@@ -96,6 +96,10 @@ public class DepartmentService {
     }
 
     public static DepartmentDTO mapToDTO(Department department, boolean detailed) {
+        if (department == null) {
+            return null;
+        }
+
         DepartmentDTO dto = new DepartmentDTO();
         dto.setId(department.getId());
         dto.setName(department.getName());

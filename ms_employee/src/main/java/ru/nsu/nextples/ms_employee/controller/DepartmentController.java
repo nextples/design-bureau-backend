@@ -145,7 +145,7 @@ public class DepartmentController {
 
     @GetMapping("/{id}/exists")
     @Operation(summary = "Проверить существование отдела")
-    public ResponseEntity<Boolean> checkEmployeeExists(@PathVariable UUID id) {
+    public ResponseEntity<Boolean> checkDepartmentExists(@PathVariable UUID id) {
         return ResponseEntity.ok(departmentService.checkIfDepartmentExists(id));
     }
 

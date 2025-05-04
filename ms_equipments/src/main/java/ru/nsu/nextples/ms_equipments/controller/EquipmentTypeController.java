@@ -1,7 +1,6 @@
 package ru.nsu.nextples.ms_equipments.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,12 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDTO;
-import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentUpdateDTO;
 import ru.nsu.nextples.ms_equipments.dto.error.ErrorDTO;
 import ru.nsu.nextples.ms_equipments.dto.type.EquipmentTypeCreateDTO;
 import ru.nsu.nextples.ms_equipments.dto.type.EquipmentTypeDTO;
 import ru.nsu.nextples.ms_equipments.dto.type.EquipmentTypeUpdateDTO;
-import ru.nsu.nextples.ms_equipments.model.EquipmentStatus;
 import ru.nsu.nextples.ms_equipments.service.EquipmentTypeService;
 
 import java.util.UUID;

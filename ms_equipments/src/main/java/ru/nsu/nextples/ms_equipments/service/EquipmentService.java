@@ -29,6 +29,11 @@ public class EquipmentService {
     private final EquipmentRepository equipmentRepository;
     private final EquipmentTypeRepository typeRepository;
 
+    @Transactional(readOnly = true)
+    public Boolean checkIfEquipmentExists(UUID id) {
+        return equipmentRepository.exists(EquipmentSpecifications.notDeleted(id));
+    }
+
     @Transactional
     public EquipmentDTO createEquipment(EquipmentCreateDTO request) {
         EquipmentType type = typeRepository.findById(request.getEquipmentTypeId())

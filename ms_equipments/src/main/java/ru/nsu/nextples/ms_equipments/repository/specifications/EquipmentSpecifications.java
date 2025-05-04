@@ -3,10 +3,7 @@ package ru.nsu.nextples.ms_equipments.repository.specifications;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import org.springframework.data.jpa.domain.Specification;
-import ru.nsu.nextples.ms_equipments.model.DepartmentAssignment;
-import ru.nsu.nextples.ms_equipments.model.Equipment;
-import ru.nsu.nextples.ms_equipments.model.EquipmentStatus;
-import ru.nsu.nextples.ms_equipments.model.ProjectAssignment;
+import ru.nsu.nextples.ms_equipments.model.*;
 
 import java.util.UUID;
 
@@ -98,6 +95,14 @@ public class EquipmentSpecifications {
 
     public static Specification<Equipment> notDeleted() {
         return (root, query, cb) -> cb.isFalse(root.get("isDeleted"));
+    }
+
+    public static Specification<Equipment> notDeleted(UUID id) {
+        return (root, query, cb) ->
+                cb.and(
+                        cb.isFalse(root.get("isDeleted")),
+                        cb.equal(root.get("id"), id)
+                );
     }
 
     public static Specification<Equipment> isDeleted() {

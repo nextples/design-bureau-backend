@@ -24,6 +24,9 @@ import ru.nsu.nextples.ms_equipments.dto.error.ErrorDTO;
 import ru.nsu.nextples.ms_equipments.model.EquipmentStatus;
 import ru.nsu.nextples.ms_equipments.service.EquipmentService;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -150,6 +153,22 @@ public class EquipmentController {
     })
     public ResponseEntity<EquipmentDTO> getEquipmentDetails(@PathVariable UUID id) {
         return ResponseEntity.ok(equipmentService.getEquipmentDetails(id));
+    }
+
+
+    @PutMapping("/exists")
+    @Operation(summary = "Проверить существование оборудования")
+    public ResponseEntity<Map<UUID, Boolean>> checkEquipmentExists(@RequestBody List<UUID> equipmentIds) {
+        Map<UUID, Boolean> map = new HashMap<>();
+        for (UUID id : equipmentIds) {
+            if (equipmentService.checkIfEquipmentExists(id)) {
+                map.put(id, true);
+            }
+            else {
+                map.put(id, false);
+            }
+        }
+        return ResponseEntity.ok(map);
     }
 
 

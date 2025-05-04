@@ -2,25 +2,28 @@ package ru.nsu.nextples.ms_employee.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.nsu.nextples.ms_employee.client.EquipmentServiceClient;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeUpdateDTO;
 import ru.nsu.nextples.ms_employee.exception.DepartmentNotFoundException;
-import ru.nsu.nextples.ms_employee.exception.PositionNotFoundException;
 import ru.nsu.nextples.ms_employee.exception.InvalidPositionException;
 import ru.nsu.nextples.ms_employee.exception.LaboratoryNotFoundException;
+import ru.nsu.nextples.ms_employee.exception.PositionNotFoundException;
 import ru.nsu.nextples.ms_employee.model.*;
 import ru.nsu.nextples.ms_employee.repository.DepartmentRepository;
-import ru.nsu.nextples.ms_employee.repository.PositionRepository;
 import ru.nsu.nextples.ms_employee.repository.EngineerSpecializationRepository;
 import ru.nsu.nextples.ms_employee.repository.LaboratoryRepository;
+import ru.nsu.nextples.ms_employee.repository.PositionRepository;
 
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class EmployeeFactory {
 
+    private final ExistenceService existenceService;
     private final PositionRepository positionRepository;
     private final EngineerSpecializationRepository specializationRepository;
     private final LaboratoryRepository laboratoryRepository;
@@ -81,9 +84,15 @@ public class EmployeeFactory {
     }
 
     private Technician createTechnician(EmployeeCreateDTO request) {
+        Set<UUID> equipmentIds = request.getEquipmentIds();
+
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            existenceService.validateEquipment(equipmentIds);
+        }
+
         Technician technician = new Technician();
         setBaseFields(technician, request);
-        technician.setAssignedEquipmentIds(new HashSet<>(request.getEquipmentIds()));
+        technician.setAssignedEquipmentIds(equipmentIds);
         return technician;
     }
 

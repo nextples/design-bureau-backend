@@ -12,7 +12,6 @@ import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
 import ru.nsu.nextples.ms_employee.dto.employee.EmployeeUpdateDTO;
 import ru.nsu.nextples.ms_employee.exception.EmployeeNotFoundException;
 import ru.nsu.nextples.ms_employee.model.*;
-import ru.nsu.nextples.ms_employee.repository.PositionRepository;
 import ru.nsu.nextples.ms_employee.repository.EmployeeRepository;
 import ru.nsu.nextples.ms_employee.repository.specifications.EmployeeSpecifications;
 
@@ -103,6 +102,9 @@ public class EmployeeService {
     }
 
     public static EmployeeDTO mapToDTO(Employee employee, boolean detailed) {
+        if (employee == null) {
+            return null;
+        }
         EmployeeDTO dto = new EmployeeDTO();
         dto.setId(employee.getId());
         dto.setFirstName(employee.getFirstName());

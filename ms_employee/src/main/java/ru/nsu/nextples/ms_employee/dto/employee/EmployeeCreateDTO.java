@@ -2,6 +2,7 @@ package ru.nsu.nextples.ms_employee.dto.employee;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,15 +34,15 @@ public class EmployeeCreateDTO {
     @Schema(description = "Возраст сотрудника", requiredMode = REQUIRED)
     private Integer age;
 
-    @NotBlank(message = "Не указан тип сотрудника")
+    @NotNull(message = "Не указан тип сотрудника")
     @Schema(description = "Тип сотрудника", requiredMode = REQUIRED, implementation = EmployeeType.class)
     private EmployeeType employeeType;
 
-    @NotBlank(message = "Не указан ID должности сотрудника")
+    @NotNull(message = "Не указан ID должности сотрудника")
     @Schema(description = "ID должности сотрудника", requiredMode = REQUIRED)
     private UUID positionId;
 
-    @NotBlank(message = "Не указан ID отдела сотрудника")
+    @NotNull(message = "Не указан ID отдела сотрудника")
     @Schema(description = "ID отдела сотрудника", requiredMode = REQUIRED)
     private UUID departmentId;
 
@@ -58,6 +59,7 @@ public class EmployeeCreateDTO {
     @Schema(description = "ID лаборатории (для лаборантов)")
     UUID laboratoryId;
 
+    @Valid
     @Schema(description = "ID оборудования (для техников)")
-    Set<UUID> equipmentIds;
+    Set<@NotNull UUID> equipmentIds;
 }

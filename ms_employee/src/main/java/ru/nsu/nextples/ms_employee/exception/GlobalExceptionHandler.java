@@ -1,6 +1,7 @@
 package ru.nsu.nextples.ms_employee.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import feign.FeignException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -35,6 +36,16 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<ErrorDTO> handleFeignException(FeignException ex) {
+        return ResponseEntity.status(ex.status())
+                .body(ErrorDTO.builder()
+                        .message("Error when accessing an external service: " + ex.getMessage())
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .timestamp(LocalDateTime.now())
+                        .build());
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorDTO> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         String errorMessage = "Invalid request data";
@@ -61,7 +72,8 @@ public class GlobalExceptionHandler {
             InvalidNameException.class,
             ObjectDeleteException.class,
             DuplicatePositionException.class,
-            UnsupportedEmployeeTypeException.class
+            UnsupportedEmployeeTypeException.class,
+            InvalidEquipmentException.class,
     })
     public ResponseEntity<ErrorDTO> handleCustomExceptions(RuntimeException ex) {
         HttpStatus status = determineHttpStatus(ex);
