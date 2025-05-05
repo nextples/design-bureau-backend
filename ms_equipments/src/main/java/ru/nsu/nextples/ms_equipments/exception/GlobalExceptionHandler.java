@@ -2,6 +2,7 @@ package ru.nsu.nextples.ms_equipments.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import feign.FeignException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -20,7 +21,10 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ExceptionHandler({
+            MethodArgumentNotValidException.class,
+            ConstraintViolationException.class
+    })
     public ResponseEntity<ErrorDTO> handleValidationException(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));
@@ -70,6 +74,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             ObjectNotFoundException.class,
             DeleteConflictException.class,
+            ObjectNotAvailableException.class,
     })
     public ResponseEntity<ErrorDTO> handleCustomExceptions(RuntimeException ex) {
         HttpStatus status = determineHttpStatus(ex);

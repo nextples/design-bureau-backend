@@ -25,14 +25,6 @@ public class EquipmentSpecifications {
         };
     }
 
-    public static Specification<Equipment> hasStatus(EquipmentStatus status) {
-        return (root, query, cb) ->
-        {
-            if (status == null) return cb.conjunction();
-            return cb.equal(root.get("status"), status);
-        };
-    }
-
     public static Specification<Equipment> hasDepartmentId(UUID departmentId) {
         return (root, query, cb) ->
         {
@@ -107,5 +99,27 @@ public class EquipmentSpecifications {
 
     public static Specification<Equipment> isDeleted() {
         return (root, query, cb) -> cb.isTrue(root.get("isDeleted"));
+    }
+
+    public static Specification<Equipment> isSharedEquipment() {
+        return (root, query, cb) -> cb.isTrue(root.get("isShared"));
+    }
+
+    public static Specification<Equipment> isAvailableForProjectAssignment(UUID id) {
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get("id"), id),
+                cb.isNull(root.get("currentProjectId")),
+                cb.isFalse(root.get("onMaintenance")),
+                cb.isFalse(root.get("isDeleted"))
+        );
+    }
+
+    public static Specification<Equipment> isAvailableForDepartmentAssignment(UUID id) {
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get("id"), id),
+                cb.isNull(root.get("currentProjectId")),
+                cb.isFalse(root.get("onMaintenance")),
+                cb.isFalse(root.get("isDeleted"))
+        );
     }
 }

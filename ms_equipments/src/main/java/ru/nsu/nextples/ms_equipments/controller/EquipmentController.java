@@ -14,16 +14,21 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentCreateDTO;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDTO;
+import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDistributionDTO;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentUpdateDTO;
 import ru.nsu.nextples.ms_equipments.dto.error.ErrorDTO;
-import ru.nsu.nextples.ms_equipments.model.EquipmentStatus;
+import ru.nsu.nextples.ms_equipments.dto.report.EfficiencyDTO;
+import ru.nsu.nextples.ms_equipments.dto.report.UsageDTO;
 import ru.nsu.nextples.ms_equipments.service.EquipmentService;
+import ru.nsu.nextples.ms_equipments.service.ReportService;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +41,7 @@ import java.util.UUID;
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
+    private final ReportService reportService;
 
     @PostMapping
     @Operation(summary = "Создать оборудование")
@@ -115,8 +121,6 @@ public class EquipmentController {
     public ResponseEntity<Page<EquipmentDTO>> getEquipments(
             @Parameter(description = "Фильтр по названию")
             @RequestParam(required = false) String name,
-            @Parameter(description = "Фильтр по статусу")
-            @RequestParam(required = false) EquipmentStatus status,
             @Parameter(description = "Фильтр по отделу")
             @RequestParam(required = false) UUID departmentId,
             @Parameter(description = "Фильтр по проекту")
@@ -126,7 +130,7 @@ public class EquipmentController {
             @ParameterObject Pageable pageable
     ) {
         return ResponseEntity.ok(
-                equipmentService.getEquipments(name, status, departmentId, projectId, typeId, pageable)
+                equipmentService.getEquipments(name, departmentId, projectId, typeId, pageable)
         );
     }
 
@@ -199,5 +203,120 @@ public class EquipmentController {
     public ResponseEntity<Void> deleteEquipment(@PathVariable UUID id) {
         equipmentService.softDeleteEquipment(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/distribution")
+    @Operation(summary = "Получить распределение оборудования на указанную дату")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = EquipmentDistributionDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class)
+                    )
+            )
+    })
+    public ResponseEntity<List<EquipmentDistributionDTO>> getEquipmentDistribution(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        LocalDate targetDate = (date != null) ? date : LocalDate.now();
+        List<EquipmentDistributionDTO> distribution = reportService.getEquipmentDistribution(targetDate);
+        return ResponseEntity.ok(distribution);
+    }
+
+
+    @GetMapping("/usage/projects")
+    @Operation(summary = "Использование оборудования проектами")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = UsageDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class)
+                    )
+            )
+    })
+    public ResponseEntity<List<UsageDTO>> getUsageByProjects(
+            @RequestParam List<UUID> projectIds
+    ) {
+        List<UsageDTO> usage = reportService.getUsageByProjects(projectIds);
+        return ResponseEntity.ok(usage);
+    }
+
+    @GetMapping("/usage/contracts/{contractId}")
+    @Operation(summary = "Использование оборудования в договоре")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = UsageDTO.class))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not Found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorDTO.class)
+                    )
+            )
+    })
+    public ResponseEntity<List<UsageDTO>> getUsageByContract(
+            @PathVariable UUID contractId
+    ) {
+        List<UsageDTO> usage = reportService.getUsageByContract(contractId);
+        return ResponseEntity.ok(usage);
+    }
+
+    @GetMapping("/{id}/efficiency")
+    @Operation(summary = "Эффективность оборудования")
+    public ResponseEntity<EfficiencyDTO> getEfficiency(@PathVariable UUID id) {
+        return ResponseEntity.ok(reportService.getEfficiency(id));
     }
 }

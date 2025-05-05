@@ -23,10 +23,9 @@ public class Equipment {
     private String name;
 
     @Column(name = "serial_number", length = 10)
-    @Pattern(
-            regexp = "^(|EQ-[A-Z]{3}\\\\d{4})$",
-            message = "Серийный номер должен остаться пустым или быть записан в формате EQ-AAA0000" +
-                      "(AAA = заглавные латинские буквы, 0000 = цифры)"
+    @Pattern(regexp = "^EQ-[A-Z]{3}\\d{4}$",
+            message = "Серийный номер должен быть записан в формате EQ-AAA0000" +
+                    "(AAA = заглавные латинские буквы, 0000 = цифры)"
     )
     private String serialNumber;
 
@@ -37,27 +36,17 @@ public class Equipment {
     @Column(name = "purchase_date")
     private LocalDate purchaseDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    private EquipmentStatus status;
-
     @Column(name = "current_department_id")
     private UUID currentDepartmentId;
 
     @Column(name = "current_project_id")
     private UUID currentProjectId;
 
-    @Column(name = "is_shared")
+    @Column(name = "is_shared", nullable = false)
     private boolean isShared;
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
     private List<Assignment> assignments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
-    private List<StatusChange> statusChanges = new ArrayList<>();
-
-    @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
-    private List<MaintenanceRecord> maintenanceRecords = new ArrayList<>();
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted = false;

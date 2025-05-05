@@ -13,6 +13,7 @@ import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentUpdateDTO;
 import ru.nsu.nextples.ms_equipments.exception.DeleteConflictException;
 import ru.nsu.nextples.ms_equipments.exception.ObjectNotFoundException;
 import ru.nsu.nextples.ms_equipments.model.*;
+import ru.nsu.nextples.ms_equipments.repository.AssignmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentTypeRepository;
 import ru.nsu.nextples.ms_equipments.repository.specifications.EquipmentSpecifications;
@@ -25,9 +26,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class EquipmentService {
 
-    private final ExistenceService existenceService;
+    private final ExternalService externalService;
     private final EquipmentRepository equipmentRepository;
     private final EquipmentTypeRepository typeRepository;
+    private final AssignmentRepository assignmentRepository;
 
     @Transactional(readOnly = true)
     public Boolean checkIfEquipmentExists(UUID id) {
@@ -39,14 +41,13 @@ public class EquipmentService {
         EquipmentType type = typeRepository.findById(request.getEquipmentTypeId())
                 .orElseThrow(() -> new ObjectNotFoundException("Equipment", request.getEquipmentTypeId()));
 
-        existenceService.checkDepartmentExists(request.getInitialDepartmentOwnerId());
+        externalService.checkDepartmentExists(request.getInitialDepartmentOwnerId());
 
         Equipment equipment = new Equipment();
         equipment.setName(request.getName());
         equipment.setSerialNumber(request.getSerialNumber());
         equipment.setType(type);
         equipment.setPurchaseDate(request.getPurchaseDate());
-        equipment.setStatus(EquipmentStatus.AVAILABLE);
         equipment.setCurrentDepartmentId(request.getInitialDepartmentOwnerId());
         equipment.setCurrentProjectId(null);
         equipment.setShared(request.getIsShared());
@@ -85,7 +86,6 @@ public class EquipmentService {
 
     @Transactional(readOnly = true)
     public Page<EquipmentDTO> getEquipments(String name,
-                                            EquipmentStatus status,
                                             UUID departmentId,
                                             UUID projectId,
                                             UUID typeId,
@@ -95,17 +95,14 @@ public class EquipmentService {
         if (name != null) {
             spec = spec.and(EquipmentSpecifications.nameContains(name));
         }
-        if (status != null) {
-            spec = spec.and(EquipmentSpecifications.hasStatus(status));
+        if (typeId != null) {
+            spec = spec.and(EquipmentSpecifications.hasTypeId(typeId));
         }
         if (departmentId != null) {
             spec = spec.and(EquipmentSpecifications.hasDepartmentId(departmentId));
         }
         if (projectId != null) {
             spec = spec.and(EquipmentSpecifications.hasProjectId(projectId));
-        }
-        if (typeId != null) {
-            spec = spec.and(EquipmentSpecifications.hasTypeId(typeId));
         }
         spec.and(EquipmentSpecifications.notDeleted());
 
@@ -147,7 +144,6 @@ public class EquipmentService {
         EquipmentDTO dto = new EquipmentDTO();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
-        dto.setStatus(entity.getStatus());
         dto.setCurrentDepartmentId(entity.getCurrentDepartmentId());
         dto.setCurrentProjectId(entity.getCurrentProjectId());
         dto.setEquipmentType(EquipmentTypeService.mapToDTO(entity.getType()));
@@ -163,16 +159,6 @@ public class EquipmentService {
             dto.setProjectAssignments(getProjectAssignments(entity)
                     .stream()
                     .map(AssignmentService::mapToDTO)
-                    .collect(Collectors.toList())
-            );
-            dto.setStatusChanges(entity.getStatusChanges()
-                    .stream()
-                    .map(AssignmentService::mapToDTO)
-                    .collect(Collectors.toList())
-            );
-            dto.setMaintenanceRecords(entity.getMaintenanceRecords()
-                    .stream()
-                    .map(MaintenanceService::mapToDTO)
                     .collect(Collectors.toList())
             );
         }

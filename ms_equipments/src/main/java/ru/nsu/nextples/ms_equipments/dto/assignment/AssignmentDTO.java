@@ -9,11 +9,11 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
-@Schema(description = "Ответ с информацией о привязке оборудования к отделу/проекту")
+@Schema(description = "Ответ с информацией о назначении оборудования отделу/проекту")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AssignmentDTO {
 
-    @Schema(description = "ID привязки")
+    @Schema(description = "ID назначения")
     private UUID id;
 
     @Schema(description = "Краткое представление оборудования", implementation = EquipmentDTO.class)
@@ -25,15 +25,15 @@ public class AssignmentDTO {
     @Schema(description = "ID проекта")
     private UUID projectId;
 
-    @Schema(description = "Дата привязки")
+    @Schema(description = "Дата назначения")
     private LocalDate startDate;
 
-    @Schema(description = "Дата возврата")
+    @Schema(description = "Дата назначения")
     private LocalDate endDate;
 
     @Schema(description = "Часов использования")
     private Integer hoursUsed;
 
-    @Schema(description = "Цель привязки")
+    @Schema(description = "Цель назначения")
     private String purpose;
 }

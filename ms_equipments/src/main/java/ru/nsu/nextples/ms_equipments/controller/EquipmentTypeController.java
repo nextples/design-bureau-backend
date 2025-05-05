@@ -123,7 +123,7 @@ public class EquipmentTypeController {
                     )
             )
     })
-    public ResponseEntity<EquipmentTypeDTO> getDepartmentDetails(@PathVariable UUID id) {
+    public ResponseEntity<EquipmentTypeDTO> getEquipmentTypes(@PathVariable UUID id) {
         return ResponseEntity.ok(typeService.getEquipmentType(id));
     }
 
