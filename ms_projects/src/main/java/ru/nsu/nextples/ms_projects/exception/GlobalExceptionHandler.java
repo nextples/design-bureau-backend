@@ -1,4 +1,4 @@
-package ru.nsu.nextples.ms_equipments.exception;
+package ru.nsu.nextples.ms_projects.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import feign.FeignException;
@@ -9,7 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.nsu.nextples.ms_equipments.dto.error.ErrorDTO;
+import ru.nsu.nextples.ms_projects.dto.error.ErrorDTO;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -75,7 +75,6 @@ public class GlobalExceptionHandler {
             ObjectNotFoundException.class,
             DeleteConflictException.class,
             ObjectNotAvailableException.class,
-            DoubleReturnException.class
     })
     public ResponseEntity<ErrorDTO> handleCustomExceptions(RuntimeException ex) {
         HttpStatus status = determineHttpStatus(ex);

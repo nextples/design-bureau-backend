@@ -1,4 +1,4 @@
-package ru.nsu.nextples.ms_equipments.client;
+package ru.nsu.nextples.ms_projects.client;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;

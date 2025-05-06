@@ -17,6 +17,7 @@ import ru.nsu.nextples.ms_equipments.repository.AssignmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentTypeRepository;
 import ru.nsu.nextples.ms_equipments.repository.specifications.EquipmentSpecifications;
+import ru.nsu.nextples.ms_equipments.repository.specifications.EquipmentTypeSpecifications;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,8 +39,10 @@ public class EquipmentService {
 
     @Transactional
     public EquipmentDTO createEquipment(EquipmentCreateDTO request) {
-        EquipmentType type = typeRepository.findById(request.getEquipmentTypeId())
-                .orElseThrow(() -> new ObjectNotFoundException("Equipment", request.getEquipmentTypeId()));
+        EquipmentType type = typeRepository.findOne(
+                        EquipmentTypeSpecifications.notDeleted(request.getEquipmentTypeId())
+                )
+                .orElseThrow(() -> new ObjectNotFoundException("Equipment Type", request.getEquipmentTypeId()));
 
         externalService.checkDepartmentExists(request.getInitialDepartmentOwnerId());
 
@@ -58,9 +61,7 @@ public class EquipmentService {
 
     @Transactional
     public EquipmentDTO updateEquipment(UUID id, EquipmentUpdateDTO request) {
-        Specification<Equipment> existSpec = Specification.where(EquipmentSpecifications.hasId(id))
-                .and(EquipmentSpecifications.notDeleted());
-        Equipment equipment = equipmentRepository.findOne(existSpec)
+        Equipment equipment = equipmentRepository.findOne(EquipmentSpecifications.notDeleted(id))
                 .orElseThrow(() -> new ObjectNotFoundException("Equipment", id));
 
         if (equipment.getName() != null) {

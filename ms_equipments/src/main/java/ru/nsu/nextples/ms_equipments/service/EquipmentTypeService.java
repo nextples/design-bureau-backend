@@ -36,7 +36,7 @@ public class EquipmentTypeService {
     @Transactional
     public EquipmentTypeDTO updateEquipmentType(UUID id, EquipmentTypeUpdateDTO request) {
         EquipmentType type = typeRepository.findOne(EquipmentTypeSpecifications.notDeleted(id))
-                .orElseThrow(() -> new ObjectNotFoundException("EquipmentType", id));
+                .orElseThrow(() -> new ObjectNotFoundException("Equipment Type", id));
 
         if (request.getName() != null) {
             type.setName(request.getName());

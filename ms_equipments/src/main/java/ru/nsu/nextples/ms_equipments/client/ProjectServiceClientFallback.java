@@ -1,6 +1,5 @@
 package ru.nsu.nextples.ms_equipments.client;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
