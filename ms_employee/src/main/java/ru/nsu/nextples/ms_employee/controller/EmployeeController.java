@@ -24,6 +24,7 @@ import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
 import ru.nsu.nextples.ms_employee.model.EmployeeType;
 import ru.nsu.nextples.ms_employee.service.EmployeeService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -172,6 +173,11 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.checkIfEmployeeExists(id));
     }
 
+    @GetMapping("/exists")
+    @Operation(summary = "Проверить существование сотрудников")
+    public ResponseEntity<Boolean> checkEmployeeExists(@RequestBody List<UUID> ids) {
+        return ResponseEntity.ok(employeeService.checkIfEmployeeExists(ids));
+    }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить сотрудника")

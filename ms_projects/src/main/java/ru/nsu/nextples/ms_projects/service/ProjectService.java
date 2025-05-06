@@ -14,6 +14,7 @@ import ru.nsu.nextples.ms_projects.repository.ProjectRepository;
 import ru.nsu.nextples.ms_projects.repository.specifications.ProjectSpecifications;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -61,42 +62,67 @@ public class ProjectService {
         return mapToDTO(project, true);
     }
 
+    @Transactional
     public void deleteProject(UUID id) {
-        Project project = projectRepository.findByIdAndDeletedFalse(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        project.setDeleted(true);
+        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(id))
+                .orElseThrow(() -> new ObjectNotFoundException("Project", id));
+
+        project.setIsDeleted(true);
+        project.getSubcontractorWorks().forEach(work -> work.setIsDeleted(true));
+
         projectRepository.save(project);
     }
 
-    public void addEmployeeToProject(UUID projectId, UUID employeeId) {
-        Project project = getProjectEntity(projectId);
-        if (employeeServiceClient.existsEmployee(employeeId)) {
-            project.getEmployeeIds().add(employeeId);
-            projectRepository.save(project);
-        } else {
-            throw new ValidationException("Employee does not exist");
+    @Transactional
+    public ProjectDTO addEmployeesToProject(UUID projectId, List<UUID> employeeIds) {
+        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
+                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
+
+        externalService.checkEmployeeExists(employeeIds);
+
+        project.getEmployeeIds().addAll(employeeIds);
+        Project savedProject = projectRepository.save(project);
+        return mapToDTO(savedProject, true);
+    }
+
+    @Transactional
+    public ProjectDTO removeEmployeeFromProject(UUID projectId, UUID employeeId) {
+        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
+                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
+        externalService.checkEmployeeExists(List.of(employeeId));
+
+        if (project.getEmployeeIds().remove(employeeId)) {
+            Project savedProject = projectRepository.save(project);
+            return mapToDTO(savedProject, true);
         }
+        return mapToDTO(project, true);
     }
 
-    // Удаление сотрудника из проекта
-    public void removeEmployeeFromProject(UUID projectId, UUID employeeId) {
-        Project project = getProjectEntity(projectId);
-        project.getEmployeeIds().remove(employeeId);
-        projectRepository.save(project);
-    }
+//    @Transactional
+//    public ProjectDTO addEquipmentToProject(UUID projectId, List<UUID> equipmentIds) {
+//        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
+//                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
+//
+//        externalService.checkEquipmentExists(equipmentIds);
+//
+//        project.getEquipmentIds().addAll(equipmentIds);
+//        Project savedProject = projectRepository.save(project);
+//        return mapToDTO(savedProject, true);
+//    }
+//
+//    @Transactional
+//    public ProjectDTO removeEquipmentFromProject(UUID projectId, UUID employeeId) {
+//        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
+//                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
+//        externalService.checkEmployeeExists(List.of(employeeId));
+//
+//        if (project.getEmployeeIds().remove(employeeId)) {
+//            Project savedProject = projectRepository.save(project);
+//            return mapToDTO(savedProject, true);
+//        }
+//        return mapToDTO(project, true);
+//    }
 
-    // Добавление оборудования (аналогично сотрудникам)
-    public void addEquipmentToProject(UUID projectId, UUID equipmentId) {
-        Project project = getProjectEntity(projectId);
-        if (equipmentServiceClient.existsEquipment(equipmentId)) {
-            project.getEquipmentIds().add(equipmentId);
-            projectRepository.save(project);
-        } else {
-            throw new ValidationException("Equipment does not exist");
-        }
-    }
-
-    // Обновление внутреннего прогресса (выполняемого компанией)
     public void updateInternalProgress(UUID projectId, int progress) {
         if (progress < 0 || progress > 100) {
             throw new ValidationException("Progress must be between 0 and 100");

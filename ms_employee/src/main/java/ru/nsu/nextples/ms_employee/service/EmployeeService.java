@@ -15,6 +15,7 @@ import ru.nsu.nextples.ms_employee.model.*;
 import ru.nsu.nextples.ms_employee.repository.EmployeeRepository;
 import ru.nsu.nextples.ms_employee.repository.specifications.EmployeeSpecifications;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,12 @@ public class EmployeeService {
     @Transactional(readOnly = true)
     public Boolean checkIfEmployeeExists(UUID id) {
         return employeeRepository.existsById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean checkIfEmployeeExists(List<UUID> ids) {
+        long existingCount = employeeRepository.countByIdIn(ids);
+        return existingCount == ids.size();
     }
 
     @Transactional
