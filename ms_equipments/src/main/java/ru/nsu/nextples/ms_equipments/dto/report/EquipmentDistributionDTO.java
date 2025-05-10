@@ -1,4 +1,4 @@
-package ru.nsu.nextples.ms_equipments.dto.equipment;
+package ru.nsu.nextples.ms_equipments.dto.report;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -27,7 +27,4 @@ public class EquipmentDistributionDTO {
 
     @Schema(description = "Дата возврата")
     private LocalDate endDate;
-
-    @Schema(description = "Тип назначения: PROJECT или DEPARTMENT")
-    private String assignmentType; // "PROJECT" или "DEPARTMENT"
 }

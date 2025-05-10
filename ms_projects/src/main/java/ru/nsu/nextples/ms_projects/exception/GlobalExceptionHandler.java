@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
-            MethodArgumentNotValidException.class,
             ConstraintViolationException.class
     })
     public ResponseEntity<ErrorDTO> handleValidationException(MethodArgumentNotValidException ex) {
@@ -75,6 +74,7 @@ public class GlobalExceptionHandler {
             ObjectNotFoundException.class,
             DeleteConflictException.class,
             ObjectNotAvailableException.class,
+            PercentageException.class,
     })
     public ResponseEntity<ErrorDTO> handleCustomExceptions(RuntimeException ex) {
         HttpStatus status = determineHttpStatus(ex);

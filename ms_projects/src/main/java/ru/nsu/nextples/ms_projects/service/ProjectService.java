@@ -1,15 +1,20 @@
 package ru.nsu.nextples.ms_projects.service;
 
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.nsu.nextples.ms_projects.dto.equipment.AddEquipmentRequestDTO;
+import ru.nsu.nextples.ms_projects.dto.equipment.AssignmentDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectCreateDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectUpdateDTO;
 import ru.nsu.nextples.ms_projects.exception.ObjectNotFoundException;
 import ru.nsu.nextples.ms_projects.model.Project;
 import ru.nsu.nextples.ms_projects.model.ProjectStatus;
+import ru.nsu.nextples.ms_projects.model.SubcontractorWork;
 import ru.nsu.nextples.ms_projects.repository.ProjectRepository;
 import ru.nsu.nextples.ms_projects.repository.specifications.ProjectSpecifications;
 
@@ -33,7 +38,9 @@ public class ProjectService {
         project.setStatus(ProjectStatus.IN_PROGRESS);
         project.setStartDate(LocalDate.now());
         project.setEndDate(null);
-        project.setProgress(0);
+        project.setResponsibleDepartmentId(request.getResponsibleDepartmentId());
+        project.setInternalProgress(0);
+        project.setTotalProgress(0);
 
         Project savedProject = projectRepository.save(project);
         return mapToDTO(savedProject, true);
@@ -49,6 +56,9 @@ public class ProjectService {
         }
         if (request.getDescription() != null) {
             project.setDescription(request.getDescription());
+        }
+        if (request.getResponsibleDepartmentId() != null) {
+            project.setResponsibleDepartmentId(request.getResponsibleDepartmentId());
         }
         Project updatedProject = projectRepository.save(project);
         return mapToDTO(updatedProject, true);
@@ -89,7 +99,6 @@ public class ProjectService {
     public ProjectDTO removeEmployeeFromProject(UUID projectId, UUID employeeId) {
         Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
                 .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
-        externalService.checkEmployeeExists(List.of(employeeId));
 
         if (project.getEmployeeIds().remove(employeeId)) {
             Project savedProject = projectRepository.save(project);
@@ -98,41 +107,60 @@ public class ProjectService {
         return mapToDTO(project, true);
     }
 
-//    @Transactional
-//    public ProjectDTO addEquipmentToProject(UUID projectId, List<UUID> equipmentIds) {
-//        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
-//                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
-//
-//        externalService.checkEquipmentExists(equipmentIds);
-//
-//        project.getEquipmentIds().addAll(equipmentIds);
-//        Project savedProject = projectRepository.save(project);
-//        return mapToDTO(savedProject, true);
-//    }
-//
-//    @Transactional
-//    public ProjectDTO removeEquipmentFromProject(UUID projectId, UUID employeeId) {
-//        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
-//                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
-//        externalService.checkEmployeeExists(List.of(employeeId));
-//
-//        if (project.getEmployeeIds().remove(employeeId)) {
-//            Project savedProject = projectRepository.save(project);
-//            return mapToDTO(savedProject, true);
-//        }
-//        return mapToDTO(project, true);
-//    }
+    @Transactional
+    public ProjectDTO addEquipmentToProject(UUID projectId, AddEquipmentRequestDTO request) {
+        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
+                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
 
-    public void updateInternalProgress(UUID projectId, int progress) {
-        if (progress < 0 || progress > 100) {
-            throw new ValidationException("Progress must be between 0 and 100");
+        externalService.checkEquipmentExists(request.getEquipmentIds());
+        for (UUID equipmentId : request.getEquipmentIds()) {
+            externalService.assignEquipmentToProject(equipmentId, project, request.getPurpose());
         }
-        Project project = getProjectEntity(projectId);
-        project.setInternalProgress(progress);
+
+        project.getEquipmentIds().addAll(request.getEquipmentIds());
+        Project savedProject = projectRepository.save(project);
+        return mapToDTO(savedProject, true);
+    }
+
+    @Transactional
+    public ProjectDTO removeEquipmentFromProject(UUID projectId, UUID equipmentId) {
+        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
+                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
+
+        if (project.getEquipmentIds().remove(equipmentId)) {
+            Project savedProject = projectRepository.save(project);
+            return mapToDTO(savedProject, true);
+        }
+        return mapToDTO(project, true);
+    }
+
+    @Transactional
+    public void updateInternalProgress(UUID projectId, int newProgress) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
+
+        project.setInternalProgress(newProgress);
         recalculateTotalProgress(project);
+
         projectRepository.save(project);
     }
 
+    public static void recalculateTotalProgress(Project project) {
+        int external = project.getSubcontractorWorks().stream()
+                .mapToInt(work -> (work.getWorkPercentage() * work.getProgress()) / 100)
+                .sum();
+
+        int internal = (project.getInternalProgress() * (100 - getTotalSubcontractedPercentage(project))) / 100;
+
+        project.setTotalProgress(internal + external);
+    }
+
+    // Суммарная доля работ, переданных субподрядчикам
+    public static int getTotalSubcontractedPercentage(Project project) {
+        return project.getSubcontractorWorks().stream()
+                .mapToInt(SubcontractorWork::getWorkPercentage)
+                .sum();
+    }
 
     public static ProjectDTO mapToDTO(Project entity, boolean detailed) {
         ProjectDTO dto = new ProjectDTO();
@@ -142,7 +170,9 @@ public class ProjectService {
         dto.setStatus(entity.getStatus());
         dto.setStartDate(entity.getStartDate());
         dto.setEndDate(entity.getEndDate());
-        dto.setProgress(entity.getProgress());
+        dto.setResponsibleDepartmentId(entity.getResponsibleDepartmentId());
+        dto.setInternalProgress(entity.getInternalProgress());
+        dto.setTotalProgress(entity.getTotalProgress());
         if (detailed) {
             dto.setEmployeeIds(entity.getEmployeeIds());
             dto.setEquipmentIds(entity.getEquipmentIds());

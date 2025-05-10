@@ -6,12 +6,10 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "assignment_type", discriminatorType = DiscriminatorType.STRING)
+@Data
 @Entity
 @Table(name = "assignments")
-@Data
-public abstract class Assignment {
+public class Assignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -21,6 +19,12 @@ public abstract class Assignment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "equipment_id")
     private Equipment equipment;
+
+    @Column(name = "project_id")
+    private UUID projectId;
+
+    @Column(name = "department_id")
+    private UUID departmentId;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;

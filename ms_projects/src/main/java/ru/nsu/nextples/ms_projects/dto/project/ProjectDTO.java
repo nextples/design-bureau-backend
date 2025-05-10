@@ -28,14 +28,20 @@ public class ProjectDTO {
     @Schema(description = "Статус проекта")
     private ProjectStatus status;
 
+    @Schema(description = "ID отдела, ответственного за проект")
+    private UUID responsibleDepartmentId;
+
     @Schema(description = "Дата начала проекта")
     private LocalDate startDate;
 
     @Schema(description = "Дата окончания проекта")
     private LocalDate endDate;
 
-    @Schema(description = "Прогресс выполнения проекта")
-    private Integer progress;
+    @Schema(description = "Внутренний прогресс выполнения проекта")
+    private Integer internalProgress;
+
+    @Schema(description = "Общий прогресс выполнения проекта")
+    private Integer totalProgress;
 
     /**********************
      ***    DETAILED    ***

@@ -42,8 +42,11 @@ public class Equipment {
     @Column(name = "current_project_id")
     private UUID currentProjectId;
 
-    @Column(name = "is_shared", nullable = false)
-    private boolean isShared;
+    @Column(name = "owner_department_id")
+    private UUID ownerDepartmentId;
+
+    @Column(name = "is_available", nullable = false)
+    private boolean isAvailable = true;
 
     @OneToMany(mappedBy = "equipment", cascade = CascadeType.ALL)
     private List<Assignment> assignments = new ArrayList<>();

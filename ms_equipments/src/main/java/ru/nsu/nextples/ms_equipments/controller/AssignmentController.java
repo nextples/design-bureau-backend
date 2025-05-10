@@ -19,12 +19,10 @@ import ru.nsu.nextples.ms_equipments.dto.assignment.AssignmentDTO;
 import ru.nsu.nextples.ms_equipments.dto.assignment.AssignmentRequestDTO;
 import ru.nsu.nextples.ms_equipments.dto.assignment.ReturnRequestDTO;
 import ru.nsu.nextples.ms_equipments.dto.error.ErrorDTO;
-import ru.nsu.nextples.ms_equipments.dto.type.EquipmentTypeDTO;
 import ru.nsu.nextples.ms_equipments.service.AssignmentService;
 
 import java.net.URI;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -73,44 +71,6 @@ public class AssignmentController {
     }
 
 
-    @PostMapping("/department/{equipmentId}")
-    @Operation(summary = "Назначить оборудование отделу")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = AssignmentDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad Request",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Not Found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDTO.class)
-                    )
-            )
-    })
-    public ResponseEntity<AssignmentDTO> assignToDepartment(
-            @PathVariable UUID equipmentId,
-            @Valid @RequestBody AssignmentRequestDTO request
-    ) {
-        AssignmentDTO assignment = assignmentService.assignToDepartment(equipmentId, request);
-        return ResponseEntity.created(URI.create("/assignments/" + assignment.getId()))
-                .body(assignment);
-    }
-
-
     @PostMapping("/project/{assignmentId}/return")
     @Operation(summary = "Вернуть оборудование из проекта")
     @ApiResponses(value = {
@@ -144,43 +104,6 @@ public class AssignmentController {
             @Valid @RequestBody ReturnRequestDTO request
     ) {
         AssignmentDTO assignment = assignmentService.returnFromProject(assignmentId, request);
-        return ResponseEntity.ok(assignment);
-    }
-
-
-    @PostMapping("/department/{assignmentId}/return")
-    @Operation(summary = "Вернуть оборудование из отдела")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = AssignmentDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad Request",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDTO.class)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Not Found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorDTO.class)
-                    )
-            )
-    })
-    public ResponseEntity<AssignmentDTO> returnFromDepartment(
-            @PathVariable UUID assignmentId,
-            @Valid @RequestBody ReturnRequestDTO request
-    ) {
-        AssignmentDTO assignment = assignmentService.returnFromDepartment(assignmentId, request);
         return ResponseEntity.ok(assignment);
     }
 

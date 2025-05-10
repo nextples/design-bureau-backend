@@ -44,9 +44,6 @@ public class EquipmentDTO {
     @Schema(description = "Является ли оборудование общим для всей организации")
     private Boolean isShared;
 
-    @Schema(description = "История привязок оборудования к отделам", implementation = AssignmentDTO.class)
-    private List<AssignmentDTO> departmentAssignments;
-
     @Schema(description = "История привязок оборудования к проектам", implementation = AssignmentDTO.class)
-    private List<AssignmentDTO> projectAssignments;
+    private List<AssignmentDTO> assignments;
 }

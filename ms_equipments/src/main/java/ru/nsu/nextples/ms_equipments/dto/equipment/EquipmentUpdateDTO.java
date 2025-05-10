@@ -29,7 +29,6 @@ public class EquipmentUpdateDTO {
     @Schema(description = "Дата покупки оборудования")
     private LocalDate purchaseDate;
 
-    @Schema(description = "Является ли оборудование разделяемым")
-    private Boolean isShared;
-
+    @Schema(description = "ID отдела-владельца")
+    private UUID ownerDepartmentId;
 }

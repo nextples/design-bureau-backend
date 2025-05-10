@@ -2,8 +2,11 @@ package ru.nsu.nextples.ms_projects.dto.project;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.util.UUID;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -19,4 +22,8 @@ public class ProjectCreateDTO {
     @Size(max = 500, message = "Описание проекта должно быть не больше 500 символов")
     @Schema(description = "Описание проекта")
     private String description;
+
+    @NotNull(message = "ID ответственно отдела не указан")
+    @Schema(description = "ID отдела, ответственного за проект", requiredMode = REQUIRED)
+    private UUID responsibleDepartmentId;
 }

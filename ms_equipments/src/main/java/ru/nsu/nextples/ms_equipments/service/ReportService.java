@@ -5,14 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDTO;
-import ru.nsu.nextples.ms_equipments.dto.equipment.EquipmentDistributionDTO;
+import ru.nsu.nextples.ms_equipments.dto.report.EquipmentDistributionDTO;
 import ru.nsu.nextples.ms_equipments.dto.report.EfficiencyDTO;
 import ru.nsu.nextples.ms_equipments.dto.report.UsageDTO;
 import ru.nsu.nextples.ms_equipments.exception.ObjectNotFoundException;
 import ru.nsu.nextples.ms_equipments.model.Assignment;
-import ru.nsu.nextples.ms_equipments.model.DepartmentAssignment;
 import ru.nsu.nextples.ms_equipments.model.Equipment;
-import ru.nsu.nextples.ms_equipments.model.ProjectAssignment;
 import ru.nsu.nextples.ms_equipments.repository.AssignmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.specifications.AssignmentSpecifications;
@@ -44,11 +42,8 @@ public class ReportService {
         List<Assignment> assignments = assignmentRepository.findAll(
                 AssignmentSpecifications.hasProjectIds(projectIds)
         );
-        List<ProjectAssignment> projectAssignments = assignments.stream()
-                .map(assignment -> (ProjectAssignment) assignment)
-                .toList();
 
-        return aggregateProjectUsage(projectAssignments);
+        return aggregateProjectUsage(assignments);
     }
 
     @Transactional(readOnly = true)
@@ -76,10 +71,10 @@ public class ReportService {
         return dto;
     }
 
-    private List<UsageDTO> aggregateProjectUsage(List<ProjectAssignment> assignments) {
+    private List<UsageDTO> aggregateProjectUsage(List<Assignment> assignments) {
         Map<UUID, UsageDTO> usageMap = new HashMap<>();
 
-        for (ProjectAssignment assignment : assignments) {
+        for (Assignment assignment : assignments) {
             UUID projectId = assignment.getProjectId();
 
             UsageDTO dto = usageMap.computeIfAbsent(projectId, id -> {
@@ -104,13 +99,8 @@ public class ReportService {
         dto.setEquipmentName(equipment.getName());
 
         activeAssignment.ifPresent(assignment -> {
-            if (assignment instanceof ProjectAssignment) {
-                dto.setProjectId(((ProjectAssignment) assignment).getProjectId());
-                dto.setAssignmentType("PROJECT");
-            } else if (assignment instanceof DepartmentAssignment) {
-                dto.setDepartmentId(((DepartmentAssignment) assignment).getDepartmentId());
-                dto.setAssignmentType("DEPARTMENT");
-            }
+            dto.setProjectId((assignment).getProjectId());
+            dto.setDepartmentId((assignment).getDepartmentId());
             dto.setStartDate(assignment.getStartDate());
             dto.setEndDate(assignment.getEndDate());
         });

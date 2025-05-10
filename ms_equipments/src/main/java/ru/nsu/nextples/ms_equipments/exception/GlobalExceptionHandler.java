@@ -75,7 +75,8 @@ public class GlobalExceptionHandler {
             ObjectNotFoundException.class,
             DeleteConflictException.class,
             ObjectNotAvailableException.class,
-            DoubleReturnException.class
+            DoubleReturnException.class,
+            UnavailableObjectStateException.class
     })
     public ResponseEntity<ErrorDTO> handleCustomExceptions(RuntimeException ex) {
         HttpStatus status = determineHttpStatus(ex);

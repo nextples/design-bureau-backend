@@ -3,25 +3,43 @@ package ru.nsu.nextples.ms_projects.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorWorkDTO;
+import ru.nsu.nextples.ms_projects.exception.ObjectNotFoundException;
+import ru.nsu.nextples.ms_projects.exception.PercentageException;
+import ru.nsu.nextples.ms_projects.model.Project;
+import ru.nsu.nextples.ms_projects.model.Subcontractor;
 import ru.nsu.nextples.ms_projects.model.SubcontractorWork;
+import ru.nsu.nextples.ms_projects.repository.ProjectRepository;
+import ru.nsu.nextples.ms_projects.repository.SubcontractorRepository;
+import ru.nsu.nextples.ms_projects.repository.SubcontractorWorkRepository;
+import ru.nsu.nextples.ms_projects.repository.specifications.ProjectSpecifications;
+import ru.nsu.nextples.ms_projects.repository.specifications.SubcontractorSpecifications;
+import ru.nsu.nextples.ms_projects.repository.specifications.SubcontractorWorkSpecifications;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class SubcontractorWorkService {
 
+    private final SubcontractorWorkRepository subcontractorWorkRepository;
+    private final SubcontractorRepository subcontractorRepository;
+    private final ProjectRepository projectRepository;
+
+    @Transactional
     public void assignWorkToSubcontractor(UUID projectId, UUID subcontractorId, int workPercentage) {
-        Project project = projectRepository.findByIdAndDeletedFalse(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-        Subcontractor subcontractor = subcontractorRepository.findById(subcontractorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Subcontractor not found"));
+        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
+                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
+        Subcontractor subcontractor = subcontractorRepository.findOne(SubcontractorSpecifications.notDeleted(subcontractorId))
+                .orElseThrow(() -> new ObjectNotFoundException("Subcontractor", subcontractorId));
 
         int totalSubcontracted = project.getSubcontractorWorks().stream()
                 .mapToInt(SubcontractorWork::getWorkPercentage)
                 .sum() + workPercentage;
 
         if (totalSubcontracted > 100) {
-            throw new BusinessLogicException("Total subcontracted work cannot exceed 100%");
+            throw new PercentageException("Total subcontracted work cannot exceed 100%");
         }
 
         SubcontractorWork work = new SubcontractorWork();
@@ -32,15 +50,15 @@ public class SubcontractorWorkService {
         subcontractorWorkRepository.save(work);
     }
 
-    // Обновление прогресса субподрядчика
+    @Transactional
     public void updateSubcontractorProgress(UUID workId, int progress) {
-        SubcontractorWork work = subcontractorWorkRepository.findById(workId)
-                .orElseThrow(() -> new ResourceNotFoundException("Subcontractor work not found"));
+        SubcontractorWork work = subcontractorWorkRepository.findOne(SubcontractorWorkSpecifications.notDeleted(workId))
+                .orElseThrow(() -> new ObjectNotFoundException("Subcontractor work", workId));
         work.setProgress(progress);
         subcontractorWorkRepository.save(work);
 
         Project project = work.getProject();
-        project.getProjectService().recalculateTotalProgress(project);
+        ProjectService.recalculateTotalProgress(project);
         projectRepository.save(project);
     }
 

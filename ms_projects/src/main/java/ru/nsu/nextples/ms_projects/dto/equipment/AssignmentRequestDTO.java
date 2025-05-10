@@ -1,4 +1,4 @@
-package ru.nsu.nextples.ms_equipments.dto.assignment;
+package ru.nsu.nextples.ms_projects.dto.equipment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

@@ -4,7 +4,6 @@ import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
 import ru.nsu.nextples.ms_equipments.model.Assignment;
 import ru.nsu.nextples.ms_equipments.model.Equipment;
-import ru.nsu.nextples.ms_equipments.model.ProjectAssignment;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -35,12 +35,6 @@ public class EquipmentCreateDTO {
     @Schema(description = "Дата покупки оборудования")
     private LocalDate purchaseDate;
 
-    @NotNull(message = "Не указан ID отдела-владельца")
-    @Schema(description = "ID отдела, который будет владеть оборудованием", requiredMode = REQUIRED)
-    private UUID initialDepartmentOwnerId;
-
-    @NotNull(message = "Не указан isShared флаг")
-    @Schema(description = "Является ли оборудование разделяемым", requiredMode = REQUIRED)
-    private Boolean isShared;
-
+    @Schema(description = "ID отдела, который будет владеть оборудованием")
+    private UUID ownerDepartmentId;
 }

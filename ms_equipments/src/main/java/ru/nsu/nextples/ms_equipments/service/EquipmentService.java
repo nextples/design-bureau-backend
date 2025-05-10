@@ -1,5 +1,6 @@
 package ru.nsu.nextples.ms_equipments.service;
 
+import feign.Retryer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,6 +32,7 @@ public class EquipmentService {
     private final EquipmentRepository equipmentRepository;
     private final EquipmentTypeRepository typeRepository;
     private final AssignmentRepository assignmentRepository;
+    private final Retryer retryer;
 
     @Transactional(readOnly = true)
     public Boolean checkIfEquipmentExists(UUID id) {
@@ -44,17 +46,16 @@ public class EquipmentService {
                 )
                 .orElseThrow(() -> new ObjectNotFoundException("Equipment Type", request.getEquipmentTypeId()));
 
-        externalService.checkDepartmentExists(request.getInitialDepartmentOwnerId());
-
         Equipment equipment = new Equipment();
         equipment.setName(request.getName());
         equipment.setSerialNumber(request.getSerialNumber());
         equipment.setType(type);
         equipment.setPurchaseDate(request.getPurchaseDate());
-        equipment.setCurrentDepartmentId(request.getInitialDepartmentOwnerId());
-        equipment.setCurrentProjectId(null);
-        equipment.setShared(request.getIsShared());
 
+        if (request.getOwnerDepartmentId() != null) {
+            externalService.checkDepartmentExists(request.getOwnerDepartmentId());
+            equipment.setOwnerDepartmentId(request.getOwnerDepartmentId());
+        }
         Equipment savedEquipment = equipmentRepository.save(equipment);
         return mapToDTO(savedEquipment, true);
     }
@@ -78,9 +79,11 @@ public class EquipmentService {
         if (request.getPurchaseDate() != null) {
             equipment.setPurchaseDate(request.getPurchaseDate());
         }
-        if (request.getIsShared() != null) {
-            equipment.setShared(request.getIsShared());
+        if (request.getOwnerDepartmentId() != null) {
+            externalService.checkDepartmentExists(request.getOwnerDepartmentId());
+            equipment.setOwnerDepartmentId(request.getOwnerDepartmentId());
         }
+
         Equipment savedEquipment = equipmentRepository.save(equipment);
         return mapToDTO(savedEquipment, true);
     }
@@ -88,7 +91,6 @@ public class EquipmentService {
     @Transactional(readOnly = true)
     public Page<EquipmentDTO> getEquipments(String name,
                                             UUID departmentId,
-                                            UUID projectId,
                                             UUID typeId,
                                             Pageable pageable
     ) {
@@ -96,14 +98,21 @@ public class EquipmentService {
         if (name != null) {
             spec = spec.and(EquipmentSpecifications.nameContains(name));
         }
+        if (departmentId != null) {
+            Specification<Equipment> availableSpec = Specification.where(
+                    (root, query, cb) ->
+                            cb.and(
+                                    cb.isTrue(root.get("isAvailable")),
+                                    cb.or(
+                                            cb.equal(root.get("ownerDepartmentId"), departmentId),
+                                            cb.isNull(root.get("ownerDepartmentId"))
+                                    )
+                            ));
+            spec = spec.and(availableSpec);
+        }
+
         if (typeId != null) {
             spec = spec.and(EquipmentSpecifications.hasTypeId(typeId));
-        }
-        if (departmentId != null) {
-            spec = spec.and(EquipmentSpecifications.hasDepartmentId(departmentId));
-        }
-        if (projectId != null) {
-            spec = spec.and(EquipmentSpecifications.hasProjectId(projectId));
         }
         spec.and(EquipmentSpecifications.notDeleted());
 
@@ -126,7 +135,7 @@ public class EquipmentService {
         Specification<Equipment> safeDeleteSpec = Specification.where(
                         EquipmentSpecifications.hasId(id)
                 ).and(EquipmentSpecifications.notDeleted())
-                .and(EquipmentSpecifications.hasNoActiveDependencies());
+                .and(EquipmentSpecifications.hasNoActiveProjects());
 
         Equipment equipment = equipmentRepository.findOne(safeDeleteSpec)
                 .orElseThrow(() -> {
@@ -151,34 +160,12 @@ public class EquipmentService {
         if (detailed) {
             dto.setSerialNumber(entity.getSerialNumber());
             dto.setPurchaseDate(entity.getPurchaseDate());
-            dto.setIsShared(entity.isShared());
-            dto.setDepartmentAssignments(getDepartmentAssignments(entity)
-                    .stream()
-                    .map(AssignmentService::mapToDTO)
-                    .collect(Collectors.toList())
-            );
-            dto.setProjectAssignments(getProjectAssignments(entity)
+            dto.setAssignments(entity.getAssignments()
                     .stream()
                     .map(AssignmentService::mapToDTO)
                     .collect(Collectors.toList())
             );
         }
         return dto;
-    }
-
-    public static List<DepartmentAssignment> getDepartmentAssignments(Equipment equipment) {
-        List<Assignment> assignments = equipment.getAssignments();
-        return assignments.stream()
-                .filter(a -> a instanceof DepartmentAssignment)
-                .map(a -> (DepartmentAssignment) a)
-                .collect(Collectors.toList());
-    }
-
-    public static List<ProjectAssignment> getProjectAssignments(Equipment equipment) {
-        List<Assignment> assignments = equipment.getAssignments();
-        return assignments.stream()
-                .filter(a -> a instanceof ProjectAssignment)
-                .map(a -> (ProjectAssignment) a)
-                .collect(Collectors.toList());
     }
 }

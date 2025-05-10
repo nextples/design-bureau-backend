@@ -15,7 +15,7 @@ public interface EquipmentRepository
 
     @Query("SELECT e, COALESCE(SUM(a.hoursUsed), 0) " +
             "FROM Equipment e " +
-            "LEFT JOIN e.assignments a ON TYPE(a) = ProjectAssignment " +
+            "LEFT JOIN e.assignments a " +
             "WHERE e.id = :equipmentId " +
             "GROUP BY e")
     List<Object[]> findEquipmentEfficiencyData(@Param("equipmentId") UUID equipmentId);

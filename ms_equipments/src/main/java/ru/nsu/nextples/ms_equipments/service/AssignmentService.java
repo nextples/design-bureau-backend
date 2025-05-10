@@ -11,9 +11,10 @@ import ru.nsu.nextples.ms_equipments.dto.assignment.AssignmentDTO;
 import ru.nsu.nextples.ms_equipments.dto.assignment.AssignmentRequestDTO;
 import ru.nsu.nextples.ms_equipments.dto.assignment.ReturnRequestDTO;
 import ru.nsu.nextples.ms_equipments.exception.DoubleReturnException;
-import ru.nsu.nextples.ms_equipments.exception.ObjectNotAvailableException;
 import ru.nsu.nextples.ms_equipments.exception.ObjectNotFoundException;
-import ru.nsu.nextples.ms_equipments.model.*;
+import ru.nsu.nextples.ms_equipments.exception.UnavailableObjectStateException;
+import ru.nsu.nextples.ms_equipments.model.Assignment;
+import ru.nsu.nextples.ms_equipments.model.Equipment;
 import ru.nsu.nextples.ms_equipments.repository.AssignmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.EquipmentRepository;
 import ru.nsu.nextples.ms_equipments.repository.specifications.EquipmentSpecifications;
@@ -31,42 +32,35 @@ public class AssignmentService {
 
     @Transactional
     public AssignmentDTO assignToProject(UUID equipmentId, AssignmentRequestDTO request) {
-        externalService.checkProjectExists(request.getTargetId());
+        externalService.checkProjectExists(request.getProjectId());
 
         Equipment equipment = equipmentRepository.findOne(
-                        EquipmentSpecifications.isAvailableForProjectAssignment(equipmentId)
+                        EquipmentSpecifications.notDeleted(equipmentId)
                 )
-                .orElseThrow(() -> new ObjectNotAvailableException("Equipment", equipmentId));
+                .orElseThrow(() -> new ObjectNotFoundException("Equipment", equipmentId));
 
-        ProjectAssignment assignment = new ProjectAssignment();
+        if (!equipment.isAvailable()) {
+            throw new UnavailableObjectStateException("Equipment is not available to assign");
+        }
+
+        equipment.setAvailable(false);
+        equipment.setCurrentProjectId(request.getProjectId());
+        equipment.setCurrentDepartmentId(request.getResponsibleDepartmentId());
+        equipmentRepository.save(equipment);
+
+        Assignment assignment = new Assignment();
         assignment.setEquipment(equipment);
         assignment.setStartDate(LocalDate.now());
         assignment.setPurpose(request.getPurpose());
-        assignment.setProjectId(request.getTargetId());
-
-        return mapToDTO(assignmentRepository.save(assignment));
-    }
-
-    @Transactional
-    public AssignmentDTO assignToDepartment(UUID equipmentId, AssignmentRequestDTO request) {
-        externalService.checkDepartmentExists(request.getTargetId());
-
-        Equipment equipment = equipmentRepository.findOne(
-                        EquipmentSpecifications.isAvailableForDepartmentAssignment(equipmentId)
-                )
-                .orElseThrow(() -> new ObjectNotAvailableException("Equipment", equipmentId));
-
-        DepartmentAssignment assignment = new DepartmentAssignment();
-        assignment.setEquipment(equipment);
-        assignment.setStartDate(LocalDate.now());
-        assignment.setDepartmentId(request.getTargetId());
+        assignment.setProjectId(request.getProjectId());
+        assignment.setDepartmentId(request.getResponsibleDepartmentId());
 
         return mapToDTO(assignmentRepository.save(assignment));
     }
 
     @Transactional
     public AssignmentDTO returnFromProject(UUID assignmentId, ReturnRequestDTO request) {
-        ProjectAssignment assignment = (ProjectAssignment) assignmentRepository.findById(assignmentId)
+        Assignment assignment = assignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new ObjectNotFoundException("Assignment", assignmentId));
 
         if (assignment.getEndDate() != null) {
@@ -77,23 +71,9 @@ public class AssignmentService {
         assignment.setHoursUsed(request.getHoursUsed());
         Equipment assignedEquipment = assignment.getEquipment();
         assignedEquipment.setCurrentProjectId(null);
-
-        return mapToDTO(assignmentRepository.save(assignment));
-    }
-
-    @Transactional
-    public AssignmentDTO returnFromDepartment(UUID assignmentId, ReturnRequestDTO request) {
-        DepartmentAssignment assignment = (DepartmentAssignment) assignmentRepository.findById(assignmentId)
-                .orElseThrow(() -> new ObjectNotFoundException("Assignment", assignmentId));
-
-        if (assignment.getEndDate() != null) {
-            throw new DoubleReturnException("Equipment was already returned by this assignment");
-        }
-
-        assignment.setEndDate(LocalDate.now());
-        assignment.setHoursUsed(request.getHoursUsed());
-        Equipment assignedEquipment = assignment.getEquipment();
         assignedEquipment.setCurrentDepartmentId(null);
+        assignedEquipment.setAvailable(true);
+        equipmentRepository.save(assignedEquipment);
 
         return mapToDTO(assignmentRepository.save(assignment));
     }
@@ -133,12 +113,8 @@ public class AssignmentService {
         dto.setEndDate(entity.getEndDate());
         dto.setHoursUsed(entity.getHoursUsed());
         dto.setPurpose(entity.getPurpose());
-        if (entity instanceof DepartmentAssignment departmentAssignment) {
-            dto.setProjectId(departmentAssignment.getDepartmentId());
-        }
-        if (entity instanceof ProjectAssignment projectAssignment) {
-            dto.setProjectId(projectAssignment.getProjectId());
-        }
+        dto.setProjectId(dto.getDepartmentId());
+        dto.setProjectId(dto.getProjectId());
         return dto;
     }
 }

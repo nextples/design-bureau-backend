@@ -6,7 +6,10 @@ import org.springframework.stereotype.Service;
 import ru.nsu.nextples.ms_projects.client.ContractServiceClient;
 import ru.nsu.nextples.ms_projects.client.EmployeeServiceClient;
 import ru.nsu.nextples.ms_projects.client.EquipmentServiceClient;
+import ru.nsu.nextples.ms_projects.dto.equipment.AssignmentDTO;
+import ru.nsu.nextples.ms_projects.dto.equipment.AssignmentRequestDTO;
 import ru.nsu.nextples.ms_projects.exception.ObjectNotFoundException;
+import ru.nsu.nextples.ms_projects.model.Project;
 
 import java.util.List;
 import java.util.Map;
@@ -34,5 +37,13 @@ public class ExternalService {
         if (equipmentExistMap == null || equipmentExistMap.containsValue(Boolean.FALSE)) {
             throw new ObjectNotFoundException("Equipment", ids);
         }
+    }
+
+    public AssignmentDTO assignEquipmentToProject(UUID equipmentId, Project project, String purpose) {
+        AssignmentRequestDTO request = new AssignmentRequestDTO();
+        request.setProjectId(project.getId());
+        request.setPurpose(purpose);
+        request.setResponsibleDepartmentId(project.getResponsibleDepartmentId());
+        return equipmentService.assignEquipmentToProject(equipmentId, request).getBody();
     }
 }
