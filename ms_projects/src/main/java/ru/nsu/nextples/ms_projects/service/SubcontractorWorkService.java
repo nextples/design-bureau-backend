@@ -28,7 +28,7 @@ public class SubcontractorWorkService {
     private final ProjectRepository projectRepository;
 
     @Transactional
-    public void assignWorkToSubcontractor(UUID projectId, UUID subcontractorId, int workPercentage) {
+    public SubcontractorWorkDTO assignWorkToSubcontractor(UUID projectId, UUID subcontractorId, int workPercentage) {
         Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
                 .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
         Subcontractor subcontractor = subcontractorRepository.findOne(SubcontractorSpecifications.notDeleted(subcontractorId))
@@ -47,19 +47,21 @@ public class SubcontractorWorkService {
         work.setSubcontractor(subcontractor);
         work.setWorkPercentage(workPercentage);
         work.setProgress(0);
-        subcontractorWorkRepository.save(work);
+        SubcontractorWork savedWork = subcontractorWorkRepository.save(work);
+        return mapToDTO(savedWork);
     }
 
     @Transactional
-    public void updateSubcontractorProgress(UUID workId, int progress) {
+    public SubcontractorWorkDTO updateSubcontractorProgress(UUID workId, int progress) {
         SubcontractorWork work = subcontractorWorkRepository.findOne(SubcontractorWorkSpecifications.notDeleted(workId))
                 .orElseThrow(() -> new ObjectNotFoundException("Subcontractor work", workId));
         work.setProgress(progress);
-        subcontractorWorkRepository.save(work);
+        SubcontractorWork savedWork = subcontractorWorkRepository.save(work);
 
         Project project = work.getProject();
         ProjectService.recalculateTotalProgress(project);
         projectRepository.save(project);
+        return mapToDTO(savedWork);
     }
 
     public static SubcontractorWorkDTO mapToDTO(SubcontractorWork entity) {

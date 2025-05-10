@@ -36,7 +36,6 @@ import java.util.UUID;
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
-    private final ReportService reportService;
 
     @PostMapping
     @Operation(summary = "Создать оборудование")

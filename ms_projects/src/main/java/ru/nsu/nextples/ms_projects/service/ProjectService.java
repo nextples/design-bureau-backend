@@ -1,13 +1,10 @@
 package ru.nsu.nextples.ms_projects.service;
 
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.nextples.ms_projects.dto.equipment.AddEquipmentRequestDTO;
-import ru.nsu.nextples.ms_projects.dto.equipment.AssignmentDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectCreateDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectUpdateDTO;
@@ -62,6 +59,15 @@ public class ProjectService {
         }
         Project updatedProject = projectRepository.save(project);
         return mapToDTO(updatedProject, true);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectDTO> getAllProjects() {
+        List<Project> projects = projectRepository.findAll();
+        return projects
+                .stream()
+                .map(project -> mapToDTO(project, false))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -135,14 +141,15 @@ public class ProjectService {
     }
 
     @Transactional
-    public void updateInternalProgress(UUID projectId, int newProgress) {
+    public ProjectDTO updateInternalProgress(UUID projectId, int newProgress) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
 
         project.setInternalProgress(newProgress);
         recalculateTotalProgress(project);
 
-        projectRepository.save(project);
+        Project savedProject = projectRepository.save(project);
+        return mapToDTO(savedProject, false);
     }
 
     public static void recalculateTotalProgress(Project project) {

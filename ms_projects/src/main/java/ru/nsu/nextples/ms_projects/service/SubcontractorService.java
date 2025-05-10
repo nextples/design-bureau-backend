@@ -2,9 +2,12 @@ package ru.nsu.nextples.ms_projects.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorCreateDTO;
 import ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorDTO;
+import ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorUpdateDTO;
 import ru.nsu.nextples.ms_projects.exception.DeleteConflictException;
 import ru.nsu.nextples.ms_projects.exception.ObjectNotFoundException;
 import ru.nsu.nextples.ms_projects.model.Project;
@@ -27,6 +30,56 @@ public class SubcontractorService {
     private final SubcontractorRepository subcontractorRepository;
     private final SubcontractorWorkRepository subcontractorWorkRepository;
     private final ProjectRepository projectRepository;
+
+    @Transactional
+    public SubcontractorDTO createSubcontractor(SubcontractorCreateDTO request) {
+        Subcontractor subcontractor = new Subcontractor();
+        subcontractor.setCompanyName(request.getCompanyName());
+        subcontractor.setEmail(request.getEmail());
+        subcontractor.setPhoneNumber(request.getPhoneNumber());
+        Subcontractor savedSubcontractor = subcontractorRepository.save(subcontractor);
+        return mapToDTO(savedSubcontractor, true);
+    }
+
+    @Transactional
+    public SubcontractorDTO updateSubcontractor(UUID subcontractorId, SubcontractorUpdateDTO request) {
+        Subcontractor subcontractor = subcontractorRepository.findOne(SubcontractorSpecifications.notDeleted(subcontractorId))
+                .orElseThrow(() -> new ObjectNotFoundException("Subcontractor", subcontractorId));
+
+        if (request.getCompanyName() != null) {
+            subcontractor.setCompanyName(request.getCompanyName());
+        }
+        if (request.getEmail() != null) {
+            subcontractor.setEmail(request.getEmail());
+        }
+        if (request.getPhoneNumber() != null) {
+            subcontractor.setPhoneNumber(request.getPhoneNumber());
+        }
+
+        Subcontractor savedSubcontractor = subcontractorRepository.save(subcontractor);
+        return mapToDTO(savedSubcontractor, true);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SubcontractorDTO> getAllSubcontractors(String name) {
+        Specification<Subcontractor> filterSpec = Specification.where(null);
+        if (name != null) {
+            filterSpec = filterSpec.and(SubcontractorSpecifications.nameContains(name));
+        }
+        List<Subcontractor> subcontractors = subcontractorRepository.findAll(filterSpec);
+        return subcontractors
+                .stream()
+                .map((subcontractor) -> SubcontractorService.mapToDTO(subcontractor, false))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public SubcontractorDTO getSubcontractor(UUID subcontractorId) {
+        Subcontractor subcontractor = subcontractorRepository.findOne(SubcontractorSpecifications.notDeleted(subcontractorId))
+                .orElseThrow(() -> new ObjectNotFoundException("Subcontractor", subcontractorId));
+
+        return mapToDTO(subcontractor, true);
+    }
 
     @Transactional
     public void deleteSubcontractor(UUID id) {
