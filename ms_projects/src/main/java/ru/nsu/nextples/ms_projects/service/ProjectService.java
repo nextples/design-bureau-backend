@@ -2,6 +2,7 @@ package ru.nsu.nextples.ms_projects.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.nextples.ms_projects.dto.equipment.AddEquipmentRequestDTO;
@@ -15,6 +16,7 @@ import ru.nsu.nextples.ms_projects.model.SubcontractorWork;
 import ru.nsu.nextples.ms_projects.repository.ProjectRepository;
 import ru.nsu.nextples.ms_projects.repository.specifications.ProjectSpecifications;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +37,7 @@ public class ProjectService {
         project.setStatus(ProjectStatus.IN_PROGRESS);
         project.setStartDate(LocalDate.now());
         project.setEndDate(null);
+        project.setCost(request.getCost());
         project.setResponsibleDepartmentId(request.getResponsibleDepartmentId());
         project.setInternalProgress(0);
         project.setTotalProgress(0);
@@ -57,13 +60,41 @@ public class ProjectService {
         if (request.getResponsibleDepartmentId() != null) {
             project.setResponsibleDepartmentId(request.getResponsibleDepartmentId());
         }
+        if (request.getCost() != null) {
+            project.setCost(request.getCost());
+        }
         Project updatedProject = projectRepository.save(project);
         return mapToDTO(updatedProject, true);
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectDTO> getAllProjects() {
-        List<Project> projects = projectRepository.findAll();
+    public List<ProjectDTO> getAllProjects(ProjectStatus status,
+                                           LocalDate startDate,
+                                           LocalDate endDate,
+                                           BigDecimal minCost,
+                                           BigDecimal maxCost,
+                                           UUID contractId
+    ) {
+        Specification<Project> filterSpec = Specification.where(null);
+        if (status != null) {
+            filterSpec = filterSpec.and(ProjectSpecifications.hasStatus(status));
+        }
+        if (startDate != null) {
+            filterSpec = filterSpec.and(ProjectSpecifications.hasDateFrom(startDate));
+        }
+        if (endDate != null) {
+            filterSpec = filterSpec.and(ProjectSpecifications.hasDateFrom(endDate));
+        }
+        if (minCost != null) {
+            filterSpec = filterSpec.and(ProjectSpecifications.hasCostFrom(minCost));
+        }
+        if (maxCost != null) {
+            filterSpec = filterSpec.and(ProjectSpecifications.hasCostFrom(maxCost));
+        }
+        if (contractId != null) {
+            filterSpec = filterSpec.and(ProjectSpecifications.hasContract(contractId));
+        }
+        List<Project> projects = projectRepository.findAll(filterSpec);
         return projects
                 .stream()
                 .map(project -> mapToDTO(project, false))
@@ -142,7 +173,7 @@ public class ProjectService {
 
     @Transactional
     public ProjectDTO updateInternalProgress(UUID projectId, int newProgress) {
-        Project project = projectRepository.findById(projectId)
+        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
                 .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
 
         project.setInternalProgress(newProgress);
@@ -150,6 +181,14 @@ public class ProjectService {
 
         Project savedProject = projectRepository.save(project);
         return mapToDTO(savedProject, false);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UUID> getProjectEmployees(UUID projectId) {
+        Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(projectId))
+                .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
+
+        return project.getEmployeeIds();
     }
 
     public static void recalculateTotalProgress(Project project) {

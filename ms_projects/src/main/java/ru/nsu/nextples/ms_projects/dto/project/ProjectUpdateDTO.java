@@ -1,10 +1,10 @@
 package ru.nsu.nextples.ms_projects.dto.project;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -21,4 +21,7 @@ public class ProjectUpdateDTO {
 
     @Schema(description = "ID отдела, ответственного за проект")
     private UUID responsibleDepartmentId;
+
+    @Schema(description = "Стоимость проекта")
+    private BigDecimal cost;
 }

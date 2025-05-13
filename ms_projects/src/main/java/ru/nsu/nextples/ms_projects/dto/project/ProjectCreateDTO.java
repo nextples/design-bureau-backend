@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
@@ -26,4 +27,8 @@ public class ProjectCreateDTO {
     @NotNull(message = "ID ответственно отдела не указан")
     @Schema(description = "ID отдела, ответственного за проект", requiredMode = REQUIRED)
     private UUID responsibleDepartmentId;
+
+    @NotNull(message = "Не указана стоимость проекта")
+    @Schema(description = "Стоимость проекта")
+    private BigDecimal cost;
 }

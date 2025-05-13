@@ -17,7 +17,12 @@ import ru.nsu.nextples.ms_projects.repository.specifications.ProjectSpecificatio
 import ru.nsu.nextples.ms_projects.repository.specifications.SubcontractorSpecifications;
 import ru.nsu.nextples.ms_projects.repository.specifications.SubcontractorWorkSpecifications;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -62,6 +67,18 @@ public class SubcontractorWorkService {
         ProjectService.recalculateTotalProgress(project);
         projectRepository.save(project);
         return mapToDTO(savedWork);
+    }
+
+    @Transactional(readOnly = true)
+    public Map<SubcontractorWorkDTO, BigDecimal> getSubcontractedWorksCost() {
+        List<SubcontractorWork> works = subcontractorWorkRepository.findAll();
+        Map<SubcontractorWorkDTO, BigDecimal> map = new HashMap<>();
+        for (SubcontractorWork work : works) {
+            SubcontractorWorkDTO workDTO = mapToDTO(work);
+            BigDecimal cost = work.getProject().getCost().multiply(BigDecimal.valueOf(work.getWorkPercentage() / 100.0));
+            map.put(workDTO, cost);
+        }
+        return map;
     }
 
     public static SubcontractorWorkDTO mapToDTO(SubcontractorWork entity) {

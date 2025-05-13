@@ -5,6 +5,7 @@ import jakarta.validation.ValidationException;
 import lombok.Data;
 import ru.nsu.nextples.ms_projects.service.ProjectService;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,9 @@ public class Project {
 
     @Column(name = "end_date")
     private LocalDate endDate;
+
+    @Column(name = "cost")
+    private BigDecimal cost;
 
     @Column(name = "internal_progress")
     private int internalProgress;       // 0-100% (прогресс работ, выполняемых компанией)
