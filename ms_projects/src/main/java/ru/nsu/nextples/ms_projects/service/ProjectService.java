@@ -109,6 +109,11 @@ public class ProjectService {
         return mapToDTO(project, true);
     }
 
+    @Transactional(readOnly = true)
+    public Boolean projectExists(UUID projectId) {
+        return projectRepository.exists(ProjectSpecifications.notDeleted(projectId));
+    }
+
     @Transactional
     public void deleteProject(UUID id) {
         Project project = projectRepository.findOne(ProjectSpecifications.notDeleted(id))

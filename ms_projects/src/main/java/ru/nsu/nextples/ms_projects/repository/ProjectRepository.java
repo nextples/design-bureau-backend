@@ -13,8 +13,4 @@ import java.util.UUID;
 public interface ProjectRepository
         extends JpaRepository<Project, UUID>, JpaSpecificationExecutor<Project> {
 
-    @Query("SELECT SUM(p.cost) FROM Project p " +
-            "WHERE p.status = 'COMPLETED' " +
-            "AND p.startDate >= :start AND p.endDate <= :end")
-    BigDecimal getTotalCostByPeriod(@Param("start") LocalDate start, @Param("end") LocalDate end);
 }

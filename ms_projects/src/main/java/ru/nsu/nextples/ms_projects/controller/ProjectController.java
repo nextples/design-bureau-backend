@@ -14,8 +14,11 @@ import ru.nsu.nextples.ms_projects.dto.equipment.AddEquipmentRequestDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectCreateDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectDTO;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectUpdateDTO;
+import ru.nsu.nextples.ms_projects.model.ProjectStatus;
 import ru.nsu.nextples.ms_projects.service.ProjectService;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,8 +47,16 @@ public class ProjectController {
 
     @GetMapping
     @Operation(summary = "Получить все проекты")
-    public ResponseEntity<List<ProjectDTO>> getAllProjects() {
-        List<ProjectDTO> projects = projectService.getAllProjects();
+    public ResponseEntity<List<ProjectDTO>> getAllProjects(@RequestParam ProjectStatus status,
+                                                           @RequestParam LocalDate startDate,
+                                                           @RequestParam LocalDate endDate,
+                                                           @RequestParam BigDecimal minCost,
+                                                           @RequestParam BigDecimal maxCost,
+                                                           @RequestParam UUID projectId
+    ) {
+        List<ProjectDTO> projects = projectService.getAllProjects(
+                status, startDate, endDate, minCost, maxCost, projectId
+        );
         return ResponseEntity.ok(projects);
     }
 
@@ -56,7 +67,15 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
+    @GetMapping("/{projectId}/employees")
+    @Operation(summary = "Получить сотрудников, участвующих в проекте")
+    public ResponseEntity<List<UUID>> getEmployees(@PathVariable UUID projectId) {
+        List<UUID> employeeIds = projectService.getProjectEmployees(projectId);
+        return ResponseEntity.ok(employeeIds);
+    }
+
     @DeleteMapping("/{projectId}")
+    @Operation(summary = "Удалить проект")
     public ResponseEntity<Void> deleteProjectById(@PathVariable UUID projectId) {
         projectService.deleteProject(projectId);
         return ResponseEntity.noContent().build();
@@ -100,5 +119,11 @@ public class ProjectController {
     ) {
         ProjectDTO project = projectService.updateInternalProgress(projectId, newValue);
         return ResponseEntity.ok(project);
+    }
+
+    @GetMapping("/api/v1/projects/{projectId}/exists")
+    @Operation(summary = "Проверить существование проекта")
+    ResponseEntity<Boolean> projectExists(@PathVariable UUID projectId) {
+        return ResponseEntity.ok(projectService.projectExists(projectId));
     }
 }

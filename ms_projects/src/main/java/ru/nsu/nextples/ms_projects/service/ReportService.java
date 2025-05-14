@@ -21,12 +21,6 @@ public class ReportService {
     private final ProjectRepository projectRepository;
 
     @Transactional(readOnly = true)
-    public BigDecimal getTotalCostByPeriod(LocalDate start, LocalDate end) {
-        return projectRepository.getTotalCostByPeriod(start, end);
-    }
-
-
-    @Transactional(readOnly = true)
     public List<EfficiencyDTO> getProjectEfficiency() {
         return projectRepository.findAll().stream()
                 .map(project -> {

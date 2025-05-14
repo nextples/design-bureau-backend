@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorWorkDTO;
 import ru.nsu.nextples.ms_projects.service.SubcontractorWorkService;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -39,5 +42,12 @@ public class SubcontractorWorkController {
     ) {
         SubcontractorWorkDTO work = workService.updateSubcontractorProgress(workId, newValue);
         return ResponseEntity.ok(work);
+    }
+
+    @GetMapping("/costs")
+    @Operation(summary = "Получить все субподрядные работы с их стоимостью")
+    public ResponseEntity<Map<SubcontractorWorkDTO, BigDecimal>> getCosts() {
+        Map <SubcontractorWorkDTO, BigDecimal> costs = workService.getAllSubcontractedWorksWithCost();
+        return ResponseEntity.ok(costs);
     }
 }

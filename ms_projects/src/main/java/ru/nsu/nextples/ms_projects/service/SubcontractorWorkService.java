@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -70,7 +69,7 @@ public class SubcontractorWorkService {
     }
 
     @Transactional(readOnly = true)
-    public Map<SubcontractorWorkDTO, BigDecimal> getSubcontractedWorksCost() {
+    public Map<SubcontractorWorkDTO, BigDecimal> getAllSubcontractedWorksWithCost() {
         List<SubcontractorWork> works = subcontractorWorkRepository.findAll();
         Map<SubcontractorWorkDTO, BigDecimal> map = new HashMap<>();
         for (SubcontractorWork work : works) {

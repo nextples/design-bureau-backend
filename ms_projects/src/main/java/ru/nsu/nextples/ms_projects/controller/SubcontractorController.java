@@ -54,6 +54,7 @@ public class SubcontractorController {
     }
 
     @DeleteMapping("/{subcontractorId}")
+    @Operation(summary = "Удалить субподрядчика")
     public ResponseEntity<Void> deleteSubcontractorById(@PathVariable UUID subcontractorId) {
         subcontractorService.deleteSubcontractor(subcontractorId);
         return ResponseEntity.noContent().build();
