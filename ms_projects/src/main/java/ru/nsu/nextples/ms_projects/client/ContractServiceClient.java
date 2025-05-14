@@ -16,6 +16,6 @@ import java.util.UUID;
 )
 public interface ContractServiceClient {
 
-    @GetMapping("api/v1/contracts/projects/{contractId}")
+    @GetMapping("api/v1/contracts/{contractId}/projects")
     ResponseEntity<List<UUID>> getProjectIdsByContractId(UUID contractId);
 }

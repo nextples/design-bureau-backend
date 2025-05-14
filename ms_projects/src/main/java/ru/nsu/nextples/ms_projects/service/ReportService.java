@@ -24,11 +24,12 @@ public class ReportService {
     public List<EfficiencyDTO> getProjectEfficiency() {
         return projectRepository.findAll().stream()
                 .map(project -> {
-                    BigDecimal costPerDay = project.getCost()
-                            .divide(BigDecimal.valueOf(ChronoUnit.DAYS.between(
-                                    project.getStartDate(),
-                                    project.getEndDate()
-                            )), 2, RoundingMode.HALF_UP);
+                    LocalDate endDate = project.getEndDate() != null ? project.getEndDate() : LocalDate.now();
+                    BigDecimal costPerDay = project.getCost().divide(
+                            BigDecimal.valueOf(ChronoUnit.DAYS.between(project.getStartDate(), endDate)),
+                            2,
+                            RoundingMode.HALF_UP
+                    );
 
                     EfficiencyDTO dto = new EfficiencyDTO();
                     dto.setProject(ProjectService.mapToDTO(project, false));

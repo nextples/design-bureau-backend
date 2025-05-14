@@ -20,6 +20,7 @@ import ru.nsu.nextples.ms_projects.service.ProjectService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -51,11 +52,10 @@ public class ProjectController {
                                                            @RequestParam LocalDate startDate,
                                                            @RequestParam LocalDate endDate,
                                                            @RequestParam BigDecimal minCost,
-                                                           @RequestParam BigDecimal maxCost,
-                                                           @RequestParam UUID projectId
+                                                           @RequestParam BigDecimal maxCost
     ) {
         List<ProjectDTO> projects = projectService.getAllProjects(
-                status, startDate, endDate, minCost, maxCost, projectId
+                status, startDate, endDate, minCost, maxCost
         );
         return ResponseEntity.ok(projects);
     }
@@ -121,9 +121,22 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
-    @GetMapping("/api/v1/projects/{projectId}/exists")
+    @GetMapping("/costs")
+    @Operation(summary = "Получить стоимость указанных проектов")
+    public ResponseEntity<Map<UUID, BigDecimal>> getProjectCosts(@RequestBody List<UUID> projectIds) {
+        Map<UUID, BigDecimal> costs = projectService.getProjectCosts(projectIds);
+        return ResponseEntity.ok(costs);
+    }
+
+    @GetMapping("/{projectId}/exists")
     @Operation(summary = "Проверить существование проекта")
-    ResponseEntity<Boolean> projectExists(@PathVariable UUID projectId) {
+    public ResponseEntity<Boolean> projectExists(@PathVariable UUID projectId) {
         return ResponseEntity.ok(projectService.projectExists(projectId));
+    }
+
+    @GetMapping("/exists")
+    @Operation(summary = "Проверить существование проектов")
+    public ResponseEntity<Boolean> projectExists(@RequestParam List<UUID> projectIds) {
+        return ResponseEntity.ok(projectService.projectExists(projectIds));
     }
 }

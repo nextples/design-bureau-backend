@@ -7,6 +7,7 @@ import ru.nsu.nextples.ms_projects.model.ProjectStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public class ProjectSpecifications {
@@ -33,20 +34,28 @@ public class ProjectSpecifications {
                 cb.lessThanOrEqualTo(root.get("startDate"), start);
     }
 
-    public static Specification<Project> hasContract(UUID contractId) {
-        return (root, query, cb) -> {
-            Join<Project, UUID> contracts = root.join("contractIds");
-            return cb.equal(contracts, contractId);
-        };
-    }
-
     public static Specification<Project> hasCostFrom(BigDecimal min) {
         return (root, query, cb) ->
                 cb.greaterThanOrEqualTo(root.get("cost"), min);
     }
 
-    public static Specification<Project> hasCostTo(LocalDate msx) {
+    public static Specification<Project> hasCostTo(BigDecimal msx) {
         return (root, query, cb) ->
                 cb.lessThanOrEqualTo(root.get("cost"), msx);
+    }
+
+    public static Specification<Project> hasIdsIn(List<UUID> ids) {
+        return (root, query, cb) -> {
+            if (ids == null || ids.isEmpty()) return cb.conjunction();
+            return root.get("id").in(ids);
+        };
+    }
+
+    public static Specification<Project> selectIdAndCost() {
+        return (root, query, cb) -> {
+            assert query != null;
+            query.multiselect(root.get("id"), root.get("cost"));
+            return cb.conjunction();
+        };
     }
 }

@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 public class EfficiencyDTO {
 
     @Schema(description = "Проект", implementation = ProjectDTO.class)
-    ProjectDTO project;
+    private ProjectDTO project;
 
     @Schema(description = "Цена проекта в день")
-    BigDecimal costPerDay;
+    private BigDecimal costPerDay;
 }

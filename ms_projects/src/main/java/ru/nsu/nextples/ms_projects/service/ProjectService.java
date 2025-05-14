@@ -18,7 +18,9 @@ import ru.nsu.nextples.ms_projects.repository.specifications.ProjectSpecificatio
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -72,8 +74,7 @@ public class ProjectService {
                                            LocalDate startDate,
                                            LocalDate endDate,
                                            BigDecimal minCost,
-                                           BigDecimal maxCost,
-                                           UUID contractId
+                                           BigDecimal maxCost
     ) {
         Specification<Project> filterSpec = Specification.where(null);
         if (status != null) {
@@ -83,16 +84,13 @@ public class ProjectService {
             filterSpec = filterSpec.and(ProjectSpecifications.hasDateFrom(startDate));
         }
         if (endDate != null) {
-            filterSpec = filterSpec.and(ProjectSpecifications.hasDateFrom(endDate));
+            filterSpec = filterSpec.and(ProjectSpecifications.hasDateUntil(endDate));
         }
         if (minCost != null) {
             filterSpec = filterSpec.and(ProjectSpecifications.hasCostFrom(minCost));
         }
         if (maxCost != null) {
-            filterSpec = filterSpec.and(ProjectSpecifications.hasCostFrom(maxCost));
-        }
-        if (contractId != null) {
-            filterSpec = filterSpec.and(ProjectSpecifications.hasContract(contractId));
+            filterSpec = filterSpec.and(ProjectSpecifications.hasCostTo(maxCost));
         }
         List<Project> projects = projectRepository.findAll(filterSpec);
         return projects
@@ -112,6 +110,12 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public Boolean projectExists(UUID projectId) {
         return projectRepository.exists(ProjectSpecifications.notDeleted(projectId));
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean projectExists(List<UUID> projectIds) {
+        long existingCount = projectRepository.countByIdIn(projectIds);
+        return existingCount == projectIds.size();
     }
 
     @Transactional
@@ -194,6 +198,23 @@ public class ProjectService {
                 .orElseThrow(() -> new ObjectNotFoundException("Project", projectId));
 
         return project.getEmployeeIds();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<UUID, BigDecimal> getProjectCosts(List<UUID> projectIds) {
+        if (projectIds == null || projectIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Specification<Project> spec = Specification
+                .where(ProjectSpecifications.hasIdsIn(projectIds))
+                .and(ProjectSpecifications.selectIdAndCost());
+
+        return projectRepository.findAll(spec).stream()
+                .collect(Collectors.toMap(
+                        Project::getId,
+                        Project::getCost
+                ));
     }
 
     public static void recalculateTotalProgress(Project project) {
