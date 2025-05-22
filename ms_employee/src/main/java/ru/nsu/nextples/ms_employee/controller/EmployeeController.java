@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/employee")
+@RequestMapping("/api/v1/employees")
 @Tag(name = "Сотрудники", description = "API для управления сотрудниками")
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class EmployeeController {

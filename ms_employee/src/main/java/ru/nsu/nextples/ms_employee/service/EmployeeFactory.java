@@ -15,6 +15,7 @@ import ru.nsu.nextples.ms_employee.repository.EngineerSpecializationRepository;
 import ru.nsu.nextples.ms_employee.repository.LaboratoryRepository;
 import ru.nsu.nextples.ms_employee.repository.PositionRepository;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -69,7 +70,7 @@ public class EmployeeFactory {
     private Engineer createEngineer(EmployeeCreateDTO request) {
         Engineer engineer = new Engineer();
         setBaseFields(engineer, request);
-        engineer.setSpecializations(new HashSet<>(
+        engineer.setSpecializations(new ArrayList<>(
                 specializationRepository.findAllById(request.getSpecializationIds())
         ));
         return engineer;
@@ -126,7 +127,7 @@ public class EmployeeFactory {
         }
 
         if (employee instanceof Engineer engineer && request.getSpecializationIds() != null) {
-            engineer.setSpecializations(new HashSet<>(
+            engineer.setSpecializations(new ArrayList<>(
                     specializationRepository.findAllById(request.getSpecializationIds())
             ));
         }

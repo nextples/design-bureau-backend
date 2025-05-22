@@ -12,6 +12,10 @@ import java.util.UUID;
 @Table(name = "employees")
 @Inheritance(strategy = InheritanceType.JOINED)
 @ValidPosition
+@DiscriminatorColumn(
+        name = "employee_type",
+        discriminatorType = DiscriminatorType.STRING
+)
 public abstract class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,7 +29,7 @@ public abstract class Employee {
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "employee_type", nullable = false)
+    @Column(name = "employee_type", insertable = false, updatable = false)
     private EmployeeType employeeType;
 
     @ManyToOne(fetch = FetchType.LAZY)

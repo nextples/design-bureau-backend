@@ -12,6 +12,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "technicians")
+@DiscriminatorValue("TECHNICIAN")
 public class Technician extends Employee {
 
     @ElementCollection

@@ -3,8 +3,8 @@ package ru.nsu.nextples.ms_employee.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -23,7 +23,7 @@ public class Department {
     @JoinColumn(name = "head_id")
     private Employee head;
 
-    @OneToMany(mappedBy = "department")
-    private Set<Employee> employees = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Employee> employees = new ArrayList<>();
 
 }

@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(name = "lab_assistants")
+@DiscriminatorValue("LAB_ASSISTANT")
 public class LabAssistant extends Employee {
 
     @ManyToOne(fetch = FetchType.LAZY)

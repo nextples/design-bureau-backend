@@ -1,16 +1,20 @@
 package ru.nsu.nextples.ms_employee.service;
 
+import jakarta.persistence.criteria.JoinType;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentCreateDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentDTO;
 import ru.nsu.nextples.ms_employee.dto.department.DepartmentUpdateDTO;
+import ru.nsu.nextples.ms_employee.dto.employee.EmployeeDTO;
 import ru.nsu.nextples.ms_employee.exception.DepartmentHasEmployeesDeleteException;
 import ru.nsu.nextples.ms_employee.exception.DepartmentNotFoundException;
 import ru.nsu.nextples.ms_employee.exception.EmployeeNotFoundException;
@@ -21,7 +25,7 @@ import ru.nsu.nextples.ms_employee.repository.DepartmentRepository;
 import ru.nsu.nextples.ms_employee.repository.EmployeeRepository;
 import ru.nsu.nextples.ms_employee.repository.specifications.DepartmentSpecifications;
 
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,7 +69,8 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<DepartmentDTO> getAllDepartments(String name, UUID headId, Pageable pageable) {
+    @EntityGraph(attributePaths = {"employees"})
+    public List<DepartmentDTO> getAllDepartments(String name, UUID headId) {
         Specification<Department> spec = Specification.where(null);
 
         if (name != null) {
@@ -75,8 +80,16 @@ public class DepartmentService {
             spec = spec.and(DepartmentSpecifications.hasHead(headId));
         }
 
-        return departmentRepository.findAll(spec, pageable)
-                .map(department -> mapToDTO(department, false));
+        spec = spec.and((root, query, cb) -> {
+            root.fetch("employees", JoinType.LEFT);
+            return null;
+        });
+
+        List<Department> departments = departmentRepository.findAll(spec);
+
+        return departments
+                .stream()
+                .map(department -> mapToDTO(department, false)).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -103,12 +116,15 @@ public class DepartmentService {
         DepartmentDTO dto = new DepartmentDTO();
         dto.setId(department.getId());
         dto.setName(department.getName());
-        dto.setTotalEmployees(department.getEmployees().size());
         dto.setHead(EmployeeService.mapToDTO(department.getHead(), false));
+
+        Set<EmployeeDTO> employees = department.getEmployees().stream()
+                .map(employee -> EmployeeService.mapToDTO(employee, false))
+                .collect(Collectors.toSet());
+        dto.setTotalEmployees(employees.size());
+
         if (detailed) {
-            dto.setEmployees(department.getEmployees().stream()
-                    .map(employee -> EmployeeService.mapToDTO(employee, false))
-                    .collect(Collectors.toSet()));
+            dto.setEmployees(employees);
         }
         return dto;
     }

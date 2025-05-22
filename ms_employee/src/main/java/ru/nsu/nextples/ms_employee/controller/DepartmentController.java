@@ -23,10 +23,11 @@ import ru.nsu.nextples.ms_employee.dto.department.DepartmentUpdateDTO;
 import ru.nsu.nextples.ms_employee.dto.error.ErrorDTO;
 import ru.nsu.nextples.ms_employee.service.DepartmentService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/departments")
+@RequestMapping("/api/v1/departments")
 @Tag(name = "Отделы", description = "API для управления отделами")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class DepartmentController {
@@ -108,14 +109,13 @@ public class DepartmentController {
                     )
             )
     })
-    public ResponseEntity<Page<DepartmentDTO>> getAllDepartments(
+    public ResponseEntity<List<DepartmentDTO>> getAllDepartments(
             @Parameter(description = "Фильтр по названию")
             @RequestParam(required = false) String name,
             @Parameter(description = "Фильтр по руководителю")
-            @RequestParam(required = false) UUID headId,
-            @ParameterObject Pageable pageable
+            @RequestParam(required = false) UUID headId
     ) {
-        return ResponseEntity.ok(departmentService.getAllDepartments(name, headId, pageable));
+        return ResponseEntity.ok(departmentService.getAllDepartments(name, headId));
     }
 
     @GetMapping("/{id}")

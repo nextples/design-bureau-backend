@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(name = "designers")
+@DiscriminatorValue("DESIGNER")
 public class Designer extends Employee {
 
     @Column(name = "patents_count", nullable = false)

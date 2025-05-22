@@ -1,6 +1,7 @@
 package ru.nsu.nextples.ms_employee.service;
 
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -90,7 +91,11 @@ public class EmployeeService {
         }
 
         return employeeRepository.findAll(spec, pageable)
-                .map(employee -> mapToDTO(employee, false));
+                .map(employee -> {
+                    Hibernate.initialize(employee.getDepartment());
+                    Hibernate.initialize(employee.getPosition());
+                    return mapToDTO(employee, false);
+                });
     }
 
     @Transactional(readOnly = true)
