@@ -4,6 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import ru.nsu.nextples.ms_projects.config.FeignConfig;
 
@@ -18,10 +19,10 @@ import java.util.UUID;
 )
 public interface EmployeeServiceClient {
 
-    @GetMapping("/api/v1/employee/{employeeId}/exists")
+    @GetMapping("/api/v1/employees/{employeeId}/exists")
     ResponseEntity<Boolean> employeeExists(@PathVariable UUID employeeId);
 
-    @GetMapping("/api/v1/employee/exists")
+    @PostMapping(value = "/api/v1/employees/exists", consumes = "application/json")
     ResponseEntity<Boolean> employeeExists(@RequestBody List<UUID> employeeIds);
 
     @GetMapping("/api/v1/departments/{departmentId}/exists")

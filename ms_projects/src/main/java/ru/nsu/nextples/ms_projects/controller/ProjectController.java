@@ -48,11 +48,11 @@ public class ProjectController {
 
     @GetMapping
     @Operation(summary = "Получить все проекты")
-    public ResponseEntity<List<ProjectDTO>> getAllProjects(@RequestParam ProjectStatus status,
-                                                           @RequestParam LocalDate startDate,
-                                                           @RequestParam LocalDate endDate,
-                                                           @RequestParam BigDecimal minCost,
-                                                           @RequestParam BigDecimal maxCost
+    public ResponseEntity<List<ProjectDTO>> getAllProjects(@RequestParam(required = false) ProjectStatus status,
+                                                           @RequestParam(required = false) LocalDate startDate,
+                                                           @RequestParam(required = false) LocalDate endDate,
+                                                           @RequestParam(required = false) BigDecimal minCost,
+                                                           @RequestParam(required = false) BigDecimal maxCost
     ) {
         List<ProjectDTO> projects = projectService.getAllProjects(
                 status, startDate, endDate, minCost, maxCost

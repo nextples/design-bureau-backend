@@ -29,6 +29,9 @@ public class EquipmentDTO {
     @Schema(description = "ID проекта, к которому приписано оборудование")
     private UUID currentProjectId;
 
+    @Schema(description = "Флаг доступности оборудования для назначения на проект")
+    private Boolean isAvailable;
+
     @Schema(description = "Тип оборудования", implementation = EquipmentType.class)
     private EquipmentTypeDTO equipmentType;
 

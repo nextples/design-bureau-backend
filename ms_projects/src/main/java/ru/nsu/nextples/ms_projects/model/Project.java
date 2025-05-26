@@ -41,10 +41,10 @@ public class Project {
     private BigDecimal cost;
 
     @Column(name = "internal_progress")
-    private int internalProgress;       // 0-100% (прогресс работ, выполняемых компанией)
+    private Integer internalProgress = 0;       // 0-100% (прогресс работ, выполняемых компанией)
 
     @Column(name = "total_progress")
-    private int totalProgress;          // 0-100% (общий прогресс)
+    private Integer totalProgress = 0;          // 0-100% (общий прогресс)
 
     @Column(name = "responsible_department_id", nullable = false)
     private UUID responsibleDepartmentId;
@@ -80,6 +80,14 @@ public class Project {
         }
         if (internalProgress < 0 || internalProgress > 100) {
             throw new ValidationException("Internal progress must be between 0 and 100");
+        }
+
+        if (totalProgress == 100) {
+            status = ProjectStatus.COMPLETED;
+            endDate = LocalDate.now();
+        } else {
+            status = ProjectStatus.IN_PROGRESS;
+            endDate = null;
         }
     }
 }

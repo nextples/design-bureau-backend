@@ -157,6 +157,7 @@ public class EquipmentService {
         dto.setCurrentDepartmentId(entity.getCurrentDepartmentId());
         dto.setCurrentProjectId(entity.getCurrentProjectId());
         dto.setEquipmentType(EquipmentTypeService.mapToDTO(entity.getType()));
+        dto.setIsAvailable(entity.isAvailable());
         if (detailed) {
             dto.setSerialNumber(entity.getSerialNumber());
             dto.setPurchaseDate(entity.getPurchaseDate());

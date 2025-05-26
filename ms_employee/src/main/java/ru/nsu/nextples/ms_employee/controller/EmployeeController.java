@@ -173,7 +173,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.checkIfEmployeeExists(id));
     }
 
-    @GetMapping("/exists")
+    @PostMapping("/exists")
     @Operation(summary = "Проверить существование сотрудников")
     public ResponseEntity<Boolean> checkEmployeeExists(@RequestBody List<UUID> ids) {
         return ResponseEntity.ok(employeeService.checkIfEmployeeExists(ids));
