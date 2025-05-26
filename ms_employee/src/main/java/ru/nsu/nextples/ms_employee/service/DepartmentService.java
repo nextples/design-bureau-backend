@@ -61,6 +61,7 @@ public class DepartmentService {
             validateHead(request.getHeadId());
             setDepartmentHead(department, request.getHeadId());
         }
+
         if (request.getName() != null) {
             setDepartmentName(department, request.getName());
         }

@@ -1,6 +1,5 @@
 package ru.nsu.nextples.ms_employee.dto.department;
 
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 import lombok.Data;

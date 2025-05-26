@@ -28,7 +28,11 @@ public class SubcontractorWorkController {
     @Operation(summary = "Назначить работу субподрядчику")
     public ResponseEntity<SubcontractorWorkDTO> assignWorkToSubcontractor(@RequestParam(name = "project") UUID projectId,
                                                                           @RequestParam(name = "subcontractor") UUID subcontractor,
-                                                                          @RequestParam(name = "percentage") int percentage) {
+                                                                          @RequestParam(name = "percentage")
+                                                                          @Min(value = 0, message = "Минимальное значение прогресса 0%")
+                                                                          @Max(value = 100, message = "Максимальное значение прогресса 100%")
+                                                                          int percentage
+    ) {
         SubcontractorWorkDTO work = workService.assignWorkToSubcontractor(projectId, subcontractor, percentage);
         return ResponseEntity.ok(work);
     }
@@ -47,7 +51,7 @@ public class SubcontractorWorkController {
     @GetMapping("/costs")
     @Operation(summary = "Получить все субподрядные работы с их стоимостью")
     public ResponseEntity<Map<SubcontractorWorkDTO, BigDecimal>> getCosts() {
-        Map <SubcontractorWorkDTO, BigDecimal> costs = workService.getAllSubcontractedWorksWithCost();
+        Map<SubcontractorWorkDTO, BigDecimal> costs = workService.getAllSubcontractedWorksWithCost();
         return ResponseEntity.ok(costs);
     }
 }

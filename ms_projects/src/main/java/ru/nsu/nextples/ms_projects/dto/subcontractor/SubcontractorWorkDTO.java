@@ -23,5 +23,5 @@ public class SubcontractorWorkDTO {
     private ProjectDTO project;
 
     @Schema(description = "Субподрядчик, выполняющий работу")
-    private ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorDTO subcontractor;
+    private SubcontractorDTO subcontractor;
 }
