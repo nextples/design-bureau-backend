@@ -5,6 +5,7 @@ import lombok.Data;
 import ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorWorkDTO;
 import ru.nsu.nextples.ms_projects.model.ProjectStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +37,9 @@ public class ProjectDTO {
 
     @Schema(description = "Дата окончания проекта")
     private LocalDate endDate;
+
+    @Schema(description = "Цена проекта")
+    private BigDecimal cost;
 
     @Schema(description = "Внутренний прогресс выполнения проекта")
     private Integer internalProgress;

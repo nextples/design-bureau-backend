@@ -244,6 +244,7 @@ public class ProjectService {
         dto.setEndDate(entity.getEndDate());
         dto.setResponsibleDepartmentId(entity.getResponsibleDepartmentId());
         dto.setInternalProgress(entity.getInternalProgress());
+        dto.setCost(entity.getCost());
         dto.setTotalProgress(entity.getTotalProgress());
         if (detailed) {
             dto.setEmployeeIds(entity.getEmployeeIds());

@@ -69,25 +69,25 @@ public class EmployeeService {
         Specification<Employee> spec = Specification.where(null);
 
         if (firstName != null) {
-            spec.and(EmployeeSpecifications.firstNameContains(firstName));
+            spec = spec.and(EmployeeSpecifications.firstNameContains(firstName));
         }
         if (lastName != null) {
-            spec.and(EmployeeSpecifications.lastNameContains(lastName));
+            spec = spec.and(EmployeeSpecifications.lastNameContains(lastName));
         }
         if (ageFrom != null) {
-            spec.and(EmployeeSpecifications.hasAgeFrom(ageFrom));
+            spec = spec.and(EmployeeSpecifications.hasAgeFrom(ageFrom));
         }
         if (ageTo != null) {
-            spec.and(EmployeeSpecifications.hasAgeTo(ageTo));
+            spec = spec.and(EmployeeSpecifications.hasAgeTo(ageTo));
         }
         if (employeeType != null) {
-            spec.and(EmployeeSpecifications.hasEmployeeType(employeeType));
+            spec = spec.and(EmployeeSpecifications.hasEmployeeType(employeeType));
         }
         if (positionId != null) {
-            spec.and(EmployeeSpecifications.hasPosition(positionId));
+            spec = spec.and(EmployeeSpecifications.hasPosition(positionId));
         }
         if (departmentId != null) {
-            spec.and(EmployeeSpecifications.hasDepartment(departmentId));
+            spec = spec.and(EmployeeSpecifications.hasDepartment(departmentId));
         }
 
         return employeeRepository.findAll(spec, pageable)
@@ -123,29 +123,30 @@ public class EmployeeService {
         dto.setLastName(employee.getLastName());
         dto.setEmployeeType(employee.getEmployeeType());
         dto.setPosition(PositionService.mapToDTO(employee.getPosition()));
+        dto.setAge(employee.getAge());
 
+        if (employee instanceof Designer designer) {
+            dto.setPatentsCount(designer.getPatentsCount());
+        }
+        if (employee instanceof Engineer engineer) {
+            dto.setSpecializations(engineer.getSpecializations()
+                    .stream()
+                    .map(EngineerSpecializationService::mapToDTO)
+                    .collect(Collectors.toSet()));
+        }
+        if (employee instanceof Technician technician) {
+            dto.setAssignedEquipment(technician.getAssignedEquipmentIds());
+        }
+        if (employee instanceof LabAssistant labAssistant) {
+            dto.setLaboratory(LaboratoryService.mapToDTO(labAssistant.getLaboratory()));
+        }
         if (detailed) {
-            dto.setAge(employee.getAge());
-            dto.setDepartment(DepartmentService.mapToDTO(employee.getDepartment(), false));
-
             if (employee.getManagedDepartment() != null) {
                 dto.setManagedDepartment(DepartmentService.mapToDTO(employee.getManagedDepartment(), false));
             }
-            if (employee instanceof Designer designer) {
-                dto.setPatentsCount(designer.getPatentsCount());
-            }
-            if (employee instanceof Engineer engineer) {
-                dto.setSpecializations(engineer.getSpecializations()
-                        .stream()
-                        .map(EngineerSpecializationService::mapToDTO)
-                        .collect(Collectors.toSet()));
-            }
-            if (employee instanceof Technician technician) {
-                dto.setAssignedEquipment(technician.getAssignedEquipmentIds());
-            }
-            if (employee instanceof LabAssistant labAssistant) {
-                dto.setLaboratory(LaboratoryService.mapToDTO(labAssistant.getLaboratory()));
-            }
+            dto.setDepartment(DepartmentService.mapToDTO(employee.getDepartment(), false));
+
+
         }
 
         return dto;

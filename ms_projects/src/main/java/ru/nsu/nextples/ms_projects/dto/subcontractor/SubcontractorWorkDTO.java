@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import ru.nsu.nextples.ms_projects.dto.project.ProjectDTO;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -18,6 +19,9 @@ public class SubcontractorWorkDTO {
 
     @Schema(description = "Прогресс выполнения работы")
     private Integer progress;
+
+    @Schema(description = "Стоимость субподрядной работы")
+    private BigDecimal cost;
 
     @Schema(description = "Проект, в котором выполняется работа")
     private ProjectDTO project;

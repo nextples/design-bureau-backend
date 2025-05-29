@@ -113,8 +113,8 @@ public class AssignmentService {
         dto.setEndDate(entity.getEndDate());
         dto.setHoursUsed(entity.getHoursUsed());
         dto.setPurpose(entity.getPurpose());
-        dto.setProjectId(dto.getDepartmentId());
-        dto.setProjectId(dto.getProjectId());
+        dto.setDepartmentId(entity.getDepartmentId());
+        dto.setProjectId(entity.getProjectId());
         return dto;
     }
 }

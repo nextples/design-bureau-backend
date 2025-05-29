@@ -30,7 +30,7 @@ public class EquipmentSpecifications {
         return (root, query, cb) ->
         {
             if (typeId == null) return cb.conjunction();
-            return cb.equal(root.get("typeId"), typeId);
+            return cb.equal(root.get("type").get("id"), typeId);
         };
     }
 

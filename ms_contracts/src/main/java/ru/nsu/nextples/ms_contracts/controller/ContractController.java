@@ -1,6 +1,7 @@
 package ru.nsu.nextples.ms_contracts.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -42,8 +43,10 @@ public class ContractController {
 
     @GetMapping
     @Operation(summary = "Получить все договоры")
-    public ResponseEntity<List<ContractDTO>> getAllContracts(@RequestParam LocalDate startDate,
-                                                             @RequestParam LocalDate endDate
+    public ResponseEntity<List<ContractDTO>> getAllContracts(@Parameter
+                                                             @RequestParam(required = false) LocalDate startDate,
+                                                             @Parameter
+                                                             @RequestParam(required = false) LocalDate endDate
     ) {
         List<ContractDTO> contracts = contractService.getAllContracts(startDate, endDate);
         return ResponseEntity.ok(contracts);

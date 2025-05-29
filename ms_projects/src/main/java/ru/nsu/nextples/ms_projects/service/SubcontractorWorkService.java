@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.nsu.nextples.ms_projects.dto.project.ProjectDTO;
 import ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorWorkDTO;
 import ru.nsu.nextples.ms_projects.exception.ObjectNotFoundException;
 import ru.nsu.nextples.ms_projects.exception.PercentageException;
@@ -18,10 +19,7 @@ import ru.nsu.nextples.ms_projects.repository.specifications.SubcontractorSpecif
 import ru.nsu.nextples.ms_projects.repository.specifications.SubcontractorWorkSpecifications;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -60,24 +58,21 @@ public class SubcontractorWorkService {
         SubcontractorWork work = subcontractorWorkRepository.findOne(SubcontractorWorkSpecifications.notDeleted(workId))
                 .orElseThrow(() -> new ObjectNotFoundException("Subcontractor work", workId));
         work.setProgress(progress);
-        SubcontractorWork savedWork = subcontractorWorkRepository.save(work);
 
         Project project = work.getProject();
         ProjectService.recalculateTotalProgress(project);
         projectRepository.save(project);
+        SubcontractorWork savedWork = subcontractorWorkRepository.save(work);
         return mapToDTO(savedWork);
     }
 
     @Transactional(readOnly = true)
-    public Map<SubcontractorWorkDTO, BigDecimal> getAllSubcontractedWorksWithCost() {
-        List<SubcontractorWork> works = subcontractorWorkRepository.findAll();
-        Map<SubcontractorWorkDTO, BigDecimal> map = new HashMap<>();
-        for (SubcontractorWork work : works) {
-            SubcontractorWorkDTO workDTO = mapToDTO(work);
-            BigDecimal cost = work.getProject().getCost().multiply(BigDecimal.valueOf(work.getWorkPercentage() / 100.0));
-            map.put(workDTO, cost);
+    public List<SubcontractorWorkDTO> getAllSubcontractedWorks() {
+        List<SubcontractorWorkDTO> works = new ArrayList<>();
+        for (SubcontractorWork work : subcontractorWorkRepository.findAll()) {
+            works.add(mapToDTO(work));
         }
-        return map;
+        return works;
     }
 
     public static SubcontractorWorkDTO mapToDTO(SubcontractorWork entity) {
@@ -87,6 +82,8 @@ public class SubcontractorWorkService {
         dto.setProgress(entity.getProgress());
         dto.setProject(ProjectService.mapToDTO(entity.getProject(), false));
         dto.setSubcontractor(SubcontractorService.mapToDTO(entity.getSubcontractor(), false));
+        BigDecimal cost = entity.getProject().getCost().multiply(BigDecimal.valueOf(entity.getWorkPercentage() / 100.0));
+        dto.setCost(cost);
         return dto;
     }
 }

@@ -8,12 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.nsu.nextples.ms_projects.dto.project.ProjectDTO;
 import ru.nsu.nextples.ms_projects.dto.subcontractor.SubcontractorWorkDTO;
 import ru.nsu.nextples.ms_projects.service.SubcontractorWorkService;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -38,7 +37,7 @@ public class SubcontractorWorkController {
     }
 
     @PatchMapping("/{workId}/progress")
-    @Operation(description = "Обновить прогресс субподрядных работ")
+    @Operation(summary = "Обновить прогресс субподрядных работ")
     public ResponseEntity<SubcontractorWorkDTO> updateSubcontractorProgress(@PathVariable UUID workId,
                                                                             @Min(value = 0, message = "Минимальное значение прогресса 0%")
                                                                             @Max(value = 100, message = "Максимальное значение прогресса 100%")
@@ -50,8 +49,8 @@ public class SubcontractorWorkController {
 
     @GetMapping("/costs")
     @Operation(summary = "Получить все субподрядные работы с их стоимостью")
-    public ResponseEntity<Map<SubcontractorWorkDTO, BigDecimal>> getCosts() {
-        Map<SubcontractorWorkDTO, BigDecimal> costs = workService.getAllSubcontractedWorksWithCost();
-        return ResponseEntity.ok(costs);
+    public ResponseEntity<List<SubcontractorWorkDTO>> getWorks() {
+        List<SubcontractorWorkDTO> works = workService.getAllSubcontractedWorks();
+        return ResponseEntity.ok(works);
     }
 }

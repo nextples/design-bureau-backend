@@ -12,17 +12,17 @@ public class ContractSpecifications {
         return (root, query, cb) ->
                 cb.and(
                         cb.equal(root.get("id"), id),
-                        cb.isFalse(root.get("is_deleted"))
+                        cb.isFalse(root.get("isDeleted"))
                 );
     }
 
     public static Specification<Contract> hasDateUntil(LocalDate end) {
         return (root, query, cb) ->
-                cb.greaterThanOrEqualTo(root.get("endDate"), end);
+                cb.lessThanOrEqualTo(root.get("endDate"), end);
     }
 
     public static Specification<Contract> hasDateFrom(LocalDate start) {
         return (root, query, cb) ->
-                cb.lessThanOrEqualTo(root.get("startDate"), start);
+                cb.greaterThanOrEqualTo(root.get("startDate"), start);
     }
 }

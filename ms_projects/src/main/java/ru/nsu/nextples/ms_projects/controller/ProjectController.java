@@ -121,7 +121,7 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
-    @GetMapping("/costs")
+    @PostMapping("/costs")
     @Operation(summary = "Получить стоимость указанных проектов")
     public ResponseEntity<Map<UUID, BigDecimal>> getProjectCosts(@RequestBody List<UUID> projectIds) {
         Map<UUID, BigDecimal> costs = projectService.getProjectCosts(projectIds);
@@ -134,7 +134,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.projectExists(projectId));
     }
 
-    @GetMapping("/exists")
+    @PostMapping("/exists")
     @Operation(summary = "Проверить существование проектов")
     public ResponseEntity<Boolean> projectExists(@RequestParam List<UUID> projectIds) {
         return ResponseEntity.ok(projectService.projectExists(projectIds));

@@ -22,7 +22,7 @@ public class SubcontractorWorkSpecifications {
         return (root, query, cb) ->
                 cb.and(
                         cb.equal(root.get("id"), workId),
-                        cb.isFalse(root.get("deleted"))
+                        cb.isFalse(root.get("isDeleted"))
                 );
 
     }

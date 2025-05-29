@@ -32,7 +32,7 @@ public class AssignmentSpecifications {
             if (projectIds == null || projectIds.isEmpty()) {
                 return cb.conjunction();
             }
-            return root.get("project_id").in(projectIds);
+            return root.get("projectId").in(projectIds);
         };
     }
 }

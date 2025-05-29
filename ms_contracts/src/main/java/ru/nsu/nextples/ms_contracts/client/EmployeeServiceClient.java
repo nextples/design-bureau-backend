@@ -16,7 +16,7 @@ import java.util.UUID;
 )
 public interface EmployeeServiceClient {
 
-    @GetMapping("/api/v1/employee/{employeeId}/exists")
+    @GetMapping("/api/v1/employees/{employeeId}/exists")
     ResponseEntity<Boolean> employeeExists(@PathVariable UUID employeeId);
 
     @GetMapping("/api/v1/departments/{departmentId}/exists")

@@ -11,16 +11,18 @@ public class EmployeeSpecifications {
     public static Specification<Employee> firstNameContains(String firstName) {
         return (root, query, cb) ->
         {
-            if (firstName == null) return cb.conjunction();
-            return cb.like(cb.lower(root.get("firstName")), "%" + firstName.toLowerCase() + "%");
+            if (firstName == null || firstName.isEmpty()) return cb.conjunction();
+            String processedName = firstName.trim().toLowerCase();
+            return cb.like(cb.lower(root.get("firstName")), "%" + processedName + "%");
         };
     }
 
-    public static Specification<Employee> lastNameContains(String name) {
+    public static Specification<Employee> lastNameContains(String lastName) {
         return (root, query, cb) ->
         {
-            if (name == null) return cb.conjunction();
-            return cb.like(cb.lower(root.get("lastName")), "%" + name.toLowerCase() + "%");
+            if (lastName == null || lastName.isEmpty()) return cb.conjunction();
+            String processedName = lastName.trim().toLowerCase();
+            return cb.like(cb.lower(root.get("firstName")), "%" + processedName + "%");
         };
     }
 
